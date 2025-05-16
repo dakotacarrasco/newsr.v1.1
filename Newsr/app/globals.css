@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 
+ * We're now handling the ticker animation within the component,
+ * so these styles are kept for backward compatibility only
+ * but are no longer actively used in the improved StockTicker component
+ */
+@keyframes ticker {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-scroll {
+  animation-name: ticker;
+  animation-duration: 30s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  transform: translateZ(0); /* Hardware acceleration */
+  will-change: transform; /* Performance optimization */
+  backface-visibility: hidden; /* Reduce flickering */
+}
+
+.ticker-paused {
+  animation-play-state: paused;
+} 

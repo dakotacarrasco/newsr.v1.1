@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-800">API Documentation</h1>
+                    <p class="text-gray-600">Reference for all available endpoints</p>
+                </div>
+                <a href="index.html" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Back to Dashboard
+                </a>
+            </div>
+        </header>
+
+        <div class="mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Introduction</h2>
+                <p class="mb-4">
+                    This documentation provides details about the available API endpoints, request formats, and response structures.
+                    Use the dashboard to test these endpoints directly.
+                </p>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <p class="text-sm text-blue-800">
+                        <span class="font-semibold">Base URL:</span> http://localhost:3000/api
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Authentication</h2>
+                <p class="mb-4">
+                    Most endpoints require authentication. Include the JWT token in the Authorization header:
+                </p>
+                <pre class="bg-gray-100 p-3 rounded text-sm font-mono mb-6">Authorization: Bearer &lt;token&gt;</pre>
+                
+                <div class="space-y-8">
+                    <div class="border-b pb-6">
+                        <div class="flex items-center">
+                            <span class="px-2 py-1 text-xs rounded bg-blue-100 text-blue-800 font-semibold mr-2">POST</span>
+                            <h3 class="font-semibold text-lg">/auth/login</h3>
+                        </div>
+                        <p class="text-gray-600 mt-2">Authenticate a user and receive a JWT token.</p>
+                        
+                        <div class="mt-4">
+                            <h4 class="font-semibold">Request Body:</h4>
+                            <pre class="bg-gray-100 p-3 rounded text-sm font-mono mt-2">{
+  "username": "johndoe",
+  "password": "password123"
+}</pre>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h4 class="font-semibold">Response:</h4>
+                            <pre class="bg-gray-100 p-3 rounded text-sm font-mono mt-2">{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": "1",
+    "username": "johndoe",
+    "email": "john.doe@example.com",
+    "role": "user"
+  }
+}</pre>
+                        </div>
+                    </div>
+                    
+                    <div class="border-b pb-6">
+                        <div class="flex items-center">
+                            <span class="px-2 py-1 text-xs rounded bg-blue-100 text-blue-800 font-semibold mr-2">POST</span>
+                            <h3 class="font-semibold text-lg">/auth/register</h3>
+                        </div>
+                        <p class="text-gray-600 mt-2">Register a new user account.</p>
+                        
+                        <div class="mt-4">
+                            <h4 class="font-semibold">Request Body:</h4>
+                            <pre class="bg-gray-100 p-3 rounded text-sm font-mono mt-2">{
+  "username": "johndoe",
+  "email": "john.doe@example.com",
+  "password": "password123"
+}</pre>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h4 class="font-semibold">Response:</h4>
+                            <pre class="bg-gray-100 p-3 rounded text-sm font-mono mt-2">{
+  "success": true,
+  "message": "User registered successfully",
+  "userId": "1"
+}</pre>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="flex items-center">
+                            <span class="px-2 py-1 text-xs rounded bg-green-100 text-green-800 font-semibold mr-2">GET</span>
+                            <h3 class="font-semibold text-lg">/auth/verify</h3>
+                        </div>
+                        <p class="text-gray-600 mt-2">Verify a JWT token and get user information.</p>
+                        
+                        <div class="mt-4">
+                            <h4 class="font-semibold">Headers:</h4>
+                            <pre class="bg-gray-100 p-3 rounded text-sm font-mono mt-2">Authorization: Bearer &lt;token&gt;</pre>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h4 class="font-semibold">Response:</h4>
+                            <pre class="bg-gray-100 p-3 rounded text-sm font-mono mt-2">{
+  "id": "1",
+  "username": "johndoe",
+  "email": "john.doe@example.com",
+  "role": "user"
+}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

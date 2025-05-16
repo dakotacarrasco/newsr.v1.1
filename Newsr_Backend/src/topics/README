@@ -1,0 +1,10 @@
+
+python -m src.topics.main scrape business
+
+python -m src.topics.main digest business
+
+# 1. Scrape politics news
+python -m src.topics.main scrape politics
+
+# 2. Generate a digest and upload to Supabase
+python -m src.topics.main digest politics --upload

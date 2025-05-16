@@ -1,0 +1,162 @@
+Build all of this Based on the codebase context, I can see this is a news/article platform with features like polls, user authentication, article management, and location-based content. Let's create a structured backend using Node.js/Express and Supabase (since it's already integrated in the frontend).
+
+Here's how we can start building the backend:
+
+1. **Project Structure**
+```
+backend/
+├── src/
+│   ├── controllers/
+│   │   ├── articleController.ts
+│   │   ├── authController.ts
+│   │   ├── pollController.ts
+│   │   └── locationController.ts
+│   ├── middleware/
+│   │   ├── auth.ts
+│   │   └── errorHandler.ts
+│   ├── routes/
+│   │   ├── articles.ts
+│   │   ├── auth.ts
+│   │   ├── polls.ts
+│   │   └── locations.ts
+│   ├── services/
+│   │   ├── supabase.ts
+│   │   └── cache.ts
+│   ├── types/
+│   │   └── index.ts
+│   └── app.ts
+├── .env
+└── package.json
+```
+
+2. **Initial Setup**
+```bash
+mkdir backend
+cd backend
+npm init -y
+npm install express dotenv cors helmet express-rate-limit @supabase/supabase-js
+npm install -D typescript @types/express @types/node ts-node-dev
+```
+
+3. **Base Express Server Setup**
+```typescript:src/app.ts
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import articleRoutes from './routes/articles';
+import authRoutes from './routes/auth';
+import pollRoutes from './routes/polls';
+import locationRoutes from './routes/locations';
+import { errorHandler } from './middleware/errorHandler';
+
+const app = express();
+
+// Middleware
+app.use(helmet());
+app.use(cors());
+app.use(express.json());
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+app.use(limiter);
+
+// Routes
+app.use('/api/articles', articleRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/polls', pollRoutes);
+app.use('/api/locations', locationRoutes);
+
+// Error handling
+app.use(errorHandler);
+
+const PORT = process.env.PORT || 8000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+```
+
+4. **Supabase Database Schema**
+Based on the frontend code, particularly these files:
+
+```81:89:lib/supabase.ts
+export interface GetArticlesParams {
+  sources?: string[]
+  categories?: string[]
+  startDate?: string
+  endDate?: string
+  search?: string
+  page?: number
+  limit?: number
+  orderBy?: string
+```
+
+
+```38:48:types/index.d.ts
+export interface User {
+  id: string
+  email: string
+  name: string
+  avatar?: string
+  preferences: {
+    topics: string[]
+    locations: string[]
+    darkMode: boolean
+  }
+}
+```
+
+
+We should create the following tables in Supabase:
+
+```sql
+-- Users table
+create table public.users (
+  id uuid references auth.users primary key,
+  email text unique,
+  name text,
+  avatar_url text,
+  preferences jsonb default '{"topics": [], "locations": [], "darkMode": false}'::jsonb,
+  created_at timestamp with time zone default timezone('utc'::text, now())
+);
+
+-- Articles table
+create table public.articles (
+  id uuid default uuid_generate_v4() primary key,
+  title text not null,
+  content text,
+  description text,
+  category text,
+  author_id uuid references public.users(id),
+  published_at timestamp with time zone default timezone('utc'::text, now()),
+  image_url text,
+  keywords text[],
+  views integer default 0,
+  likes integer default 0
+);
+
+-- Polls table
+create table public.polls (
+  id uuid default uuid_generate_v4() primary key,
+  question text not null,
+  options jsonb not null,
+  category text,
+  end_date timestamp with time zone,
+  created_at timestamp with time zone default timezone('utc'::text, now()),
+  total_votes integer default 0
+);
+```
+
+Next steps would be:
+1. Implement authentication controllers using Supabase Auth
+2. Create CRUD operations for articles
+3. Implement poll voting system
+4. Add location-based filtering
+5. Set up caching for frequently accessed data
+
+Would you like me to focus on implementing any specific part of this backend structure?
+
+python -m citydigest.main digest denver --upload

@@ -1,0 +1,679 @@
+'use client'
+
+import { useEffect, useState, useRef } from 'react'
+import { Clock, ChevronRight, ChevronDown, MessageSquare, Eye, Heart } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { format } from 'date-fns'
+
+// Define all sports categories with their ESPN API endpoints
+const allSports = {
+  nfl: {
+    name: 'NFL',
+    endpoint: 'football/nfl',
+    color: 'bg-amber-500',
+    inSeason: true
+  },
+  nba: {
+    name: 'NBA',
+    endpoint: 'basketball/nba',
+    color: 'bg-blue-500',
+    inSeason: true
+  },
+  nhl: {
+    name: 'NHL',
+    endpoint: 'hockey/nhl',
+    color: 'bg-cyan-500',
+    inSeason: true
+  },
+  mensCBB: {
+    name: 'College Basketball',
+    endpoint: 'basketball/mens-college-basketball',
+    color: 'bg-indigo-500',
+    inSeason: true
+  },
+  soccer: {
+    name: 'Soccer',
+    endpoint: 'soccer/eng.1',
+    color: 'bg-green-500',
+    inSeason: true
+  },
+  mlb: {
+    name: 'MLB',
+    endpoint: 'baseball/mlb',
+    color: 'bg-red-500',
+    inSeason: false
+  },
+  collegeFB: {
+    name: 'College Football',
+    endpoint: 'football/college-football',
+    color: 'bg-orange-500',
+    inSeason: false
+  },
+  collegeBaseball: {
+    name: 'College Baseball',
+    endpoint: 'baseball/college-baseball',
+    color: 'bg-pink-500',
+    inSeason: false
+  },
+  wnba: {
+    name: 'WNBA',
+    endpoint: 'basketball/wnba',
+    color: 'bg-purple-500',
+    inSeason: false
+  },
+  womensCBB: {
+    name: 'Women\'s College Basketball',
+    endpoint: 'basketball/womens-college-basketball',
+    color: 'bg-violet-500',
+    inSeason: false
+  }
+};
+
+// For soccer, we can offer multiple leagues
+const soccerLeagues = [
+  { id: 'eng.1', name: 'Premier League', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
+  { id: 'esp.1', name: 'La Liga', flag: '🇪🇸' },
+  { id: 'ita.1', name: 'Serie A', flag: '🇮🇹' },
+  { id: 'ger.1', name: 'Bundesliga', flag: '🇩🇪' },
+  { id: 'usa.1', name: 'MLS', flag: '🇺🇸' },
+  { id: 'fra.1', name: 'Ligue 1', flag: '🇫🇷' },
+  { id: 'uefa.champions', name: 'Champions League', flag: '🇪🇺' }
+];
+
+export default function SportsPage() {
+  // Create refs for each sport section for navigation
+  const sectionRefs = Object.keys(allSports).reduce((acc, key) => {
+    acc[key] = useRef<HTMLDivElement>(null);
+    return acc;
+  }, {} as Record<string, React.RefObject<HTMLDivElement>>);
+  
+  const [selectedSport, setSelectedSport] = useState('nfl')
+  const [selectedLeague, setSelectedLeague] = useState('eng.1') // For soccer only
+  const [showAllSports, setShowAllSports] = useState(false)
+  
+  // Initialize state for all sports
+  const [liveScores, setLiveScores] = useState<Record<string, any[]>>(
+    Object.keys(allSports).reduce((acc, key) => {
+      acc[key] = [];
+      return acc;
+    }, {} as Record<string, any[]>)
+  );
+  
+  const [news, setNews] = useState<Record<string, any[]>>(
+    Object.keys(allSports).reduce((acc, key) => {
+      acc[key] = [];
+      return acc;
+    }, {} as Record<string, any[]>)
+  );
+  
+  const [loading, setLoading] = useState<Record<string, boolean>>(
+    Object.keys(allSports).reduce((acc, key) => {
+      acc[key] = true;
+      return acc;
+    }, {} as Record<string, boolean>)
+  );
+  
+  const [error, setError] = useState<Record<string, string | null>>(
+    Object.keys(allSports).reduce((acc, key) => {
+      acc[key] = null;
+      return acc;
+    }, {} as Record<string, string | null>)
+  );
+  
+  const [todayDate, setTodayDate] = useState(format(new Date(), 'yyyyMMdd'))
+  
+  // Transform ESPN data for display
+  const transformScores = (sportKey: string, data: any[]) => {
+    return data?.map(game => {
+      // Different sports have slightly different data structures
+      return {
+        id: game.id,
+        league: game.competitions?.[0]?.league?.abbreviation || allSports[sportKey as keyof typeof allSports].name,
+        homeTeam: game.competitions?.[0]?.competitors?.[0]?.team?.displayName || 'Home Team',
+        awayTeam: game.competitions?.[0]?.competitors?.[1]?.team?.displayName || 'Away Team',
+        homeScore: parseInt(game.competitions?.[0]?.competitors?.[0]?.score) || 0,
+        awayScore: parseInt(game.competitions?.[0]?.competitors?.[1]?.score) || 0,
+        time: game.status?.displayClock || game.status?.type?.shortDetail || 'TBD',
+        period: game.status?.period || 0,
+        startTime: game.date ? format(new Date(game.date), 'h:mm a') : 'TBD',
+        isLive: game.status?.type?.state === 'in' || false,
+        isCompleted: game.status?.type?.state === 'post' || false,
+        homeLogoUrl: game.competitions?.[0]?.competitors?.[0]?.team?.logo || null,
+        awayLogoUrl: game.competitions?.[0]?.competitors?.[1]?.team?.logo || null,
+        venue: game.competitions?.[0]?.venue?.fullName || '',
+        broadcast: game.competitions?.[0]?.broadcasts?.[0]?.names?.join(', ') || '',
+        homeStats: {
+          // Common stats
+          possession: game.competitions?.[0]?.competitors?.[0]?.statistics?.find((s: any) => s.name === 'possessionPct')?.displayValue || '',
+          
+          // Basketball specific
+          rebounds: game.competitions?.[0]?.competitors?.[0]?.statistics?.find((s: any) => s.name === 'rebounds')?.displayValue || '',
+          assists: game.competitions?.[0]?.competitors?.[0]?.statistics?.find((s: any) => s.name === 'assists')?.displayValue || '',
+          threePointPct: game.competitions?.[0]?.competitors?.[0]?.statistics?.find((s: any) => s.name === 'threePointPct')?.displayValue || '',
+          
+          // Football specific
+          totalYards: game.competitions?.[0]?.competitors?.[0]?.statistics?.find((s: any) => s.name === 'totalYards')?.displayValue || '',
+          passingYards: game.competitions?.[0]?.competitors?.[0]?.statistics?.find((s: any) => s.name === 'netPassingYards')?.displayValue || '',
+          rushingYards: game.competitions?.[0]?.competitors?.[0]?.statistics?.find((s: any) => s.name === 'rushingYards')?.displayValue || '',
+          
+          // Baseball specific
+          hits: game.competitions?.[0]?.competitors?.[0]?.statistics?.find((s: any) => s.name === 'hits')?.displayValue || '',
+          errors: game.competitions?.[0]?.competitors?.[0]?.statistics?.find((s: any) => s.name === 'errors')?.displayValue || '',
+          
+          // Hockey specific
+          shotsOnGoal: game.competitions?.[0]?.competitors?.[0]?.statistics?.find((s: any) => s.name === 'shotsOnGoal')?.displayValue || '',
+          
+          // Soccer specific
+          shots: game.competitions?.[0]?.competitors?.[0]?.statistics?.find((s: any) => s.name === 'shots')?.displayValue || '',
+          shotsOnTarget: game.competitions?.[0]?.competitors?.[0]?.statistics?.find((s: any) => s.name === 'shotsOnTarget')?.displayValue || '',
+        },
+        awayStats: {
+          // Common stats
+          possession: game.competitions?.[0]?.competitors?.[1]?.statistics?.find((s: any) => s.name === 'possessionPct')?.displayValue || '',
+          
+          // Basketball specific
+          rebounds: game.competitions?.[0]?.competitors?.[1]?.statistics?.find((s: any) => s.name === 'rebounds')?.displayValue || '',
+          assists: game.competitions?.[0]?.competitors?.[1]?.statistics?.find((s: any) => s.name === 'assists')?.displayValue || '',
+          threePointPct: game.competitions?.[0]?.competitors?.[1]?.statistics?.find((s: any) => s.name === 'threePointPct')?.displayValue || '',
+          
+          // Football specific
+          totalYards: game.competitions?.[0]?.competitors?.[1]?.statistics?.find((s: any) => s.name === 'totalYards')?.displayValue || '',
+          passingYards: game.competitions?.[0]?.competitors?.[1]?.statistics?.find((s: any) => s.name === 'netPassingYards')?.displayValue || '',
+          rushingYards: game.competitions?.[0]?.competitors?.[1]?.statistics?.find((s: any) => s.name === 'rushingYards')?.displayValue || '',
+          
+          // Baseball specific
+          hits: game.competitions?.[0]?.competitors?.[1]?.statistics?.find((s: any) => s.name === 'hits')?.displayValue || '',
+          errors: game.competitions?.[0]?.competitors?.[1]?.statistics?.find((s: any) => s.name === 'errors')?.displayValue || '',
+          
+          // Hockey specific
+          shotsOnGoal: game.competitions?.[0]?.competitors?.[1]?.statistics?.find((s: any) => s.name === 'shotsOnGoal')?.displayValue || '',
+          
+          // Soccer specific
+          shots: game.competitions?.[0]?.competitors?.[1]?.statistics?.find((s: any) => s.name === 'shots')?.displayValue || '',
+          shotsOnTarget: game.competitions?.[0]?.competitors?.[1]?.statistics?.find((s: any) => s.name === 'shotsOnTarget')?.displayValue || '',
+        }
+      };
+    }) || [];
+  };
+
+  // Function to scroll to a sport section
+  const scrollToSection = (sportKey: string) => {
+    setSelectedSport(sportKey);
+    sectionRefs[sportKey]?.current?.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start'
+    });
+  };
+
+  // Fetch data for all sports
+  useEffect(() => {
+    const fetchAllSportsData = async () => {
+      // Fetch data for each sport in parallel
+      const sportKeys = Object.keys(allSports);
+      
+      await Promise.all(sportKeys.map(async (sportKey) => {
+        try {
+          setLoading(prev => ({ ...prev, [sportKey]: true }));
+          
+          // Determine the correct endpoint
+          let endpoint = allSports[sportKey as keyof typeof allSports].endpoint;
+          
+          // For soccer, use the selected league
+          if (sportKey === 'soccer') {
+            endpoint = `soccer/${selectedLeague}`;
+          }
+          
+          // Fetch today's scores
+          const scoresResponse = await fetch(`/api/sports/scores?endpoint=${endpoint}&date=${todayDate}`);
+          if (!scoresResponse.ok) throw new Error('Failed to fetch scores');
+          const scoresData = await scoresResponse.json();
+          
+          // Update scores for this sport
+          setLiveScores(prev => ({
+            ...prev,
+            [sportKey]: scoresData
+          }));
+          
+          // Fetch news for this sport
+          const newsResponse = await fetch(`/api/sports/news?endpoint=${endpoint}`);
+          if (!newsResponse.ok) throw new Error('Failed to fetch news');
+          const newsData = await newsResponse.json();
+          
+          setNews(prev => ({
+            ...prev,
+            [sportKey]: newsData
+          }));
+          
+          // Clear error if successful
+          setError(prev => ({ ...prev, [sportKey]: null }));
+        } catch (err) {
+          console.error(`Error fetching ${sportKey} data:`, err);
+          setError(prev => ({ 
+            ...prev, 
+            [sportKey]: `Failed to load ${allSports[sportKey as keyof typeof allSports].name} data. Please try again later.` 
+          }));
+        } finally {
+          setLoading(prev => ({ ...prev, [sportKey]: false }));
+        }
+      }));
+    };
+    
+    fetchAllSportsData();
+    
+    // Set up polling for live data (every 60 seconds)
+    const intervalId = setInterval(fetchAllSportsData, 60000);
+    
+    return () => clearInterval(intervalId);
+  }, [selectedLeague, todayDate]);
+
+  // Render sport-specific stats in a more compact format
+  const renderStats = (game: any, isHome = true, sportKey: string) => {
+    const stats = isHome ? game.homeStats : game.awayStats;
+    
+    if (sportKey === 'nba' || sportKey === 'wnba' || sportKey === 'mensCBB' || sportKey === 'womensCBB') {
+      return (
+        <div className="text-xs text-gray-600 mt-1 flex flex-wrap gap-x-3">
+          <span>REB: {stats.rebounds || '-'}</span>
+          <span>AST: {stats.assists || '-'}</span>
+          <span>3PT: {stats.threePointPct || '-'}</span>
+        </div>
+      );
+    } else if (sportKey === 'nfl' || sportKey === 'collegeFB') {
+      return (
+        <div className="text-xs text-gray-600 mt-1 flex flex-wrap gap-x-3">
+          <span>YDS: {stats.totalYards || '-'}</span>
+          <span>PASS: {stats.passingYards || '-'}</span>
+          <span>RUSH: {stats.rushingYards || '-'}</span>
+        </div>
+      );
+    } else if (sportKey === 'mlb' || sportKey === 'collegeBaseball') {
+      return (
+        <div className="text-xs text-gray-600 mt-1 flex flex-wrap gap-x-3">
+          <span>H: {stats.hits || '-'}</span>
+          <span>E: {stats.errors || '-'}</span>
+        </div>
+      );
+    } else if (sportKey === 'nhl') {
+      return (
+        <div className="text-xs text-gray-600 mt-1 flex flex-wrap gap-x-3">
+          <span>SOG: {stats.shotsOnGoal || '-'}</span>
+        </div>
+      );
+    } else if (sportKey === 'soccer') {
+      return (
+        <div className="text-xs text-gray-600 mt-1 flex flex-wrap gap-x-3">
+          <span>POSS: {stats.possession || '-'}</span>
+          <span>SHOTS: {stats.shots || '-'}</span>
+          <span>SOT: {stats.shotsOnTarget || '-'}</span>
+        </div>
+      );
+    }
+    
+    return null;
+  };
+
+  // Render each sport section
+  const renderSportSection = (sportKey: string) => {
+    const sport = allSports[sportKey as keyof typeof allSports];
+    const sportData = liveScores[sportKey] || [];
+    
+    // Transform the data for display
+    const transformedScores = transformScores(sportKey, sportData);
+    
+    // Separate games by status
+    const liveGames = transformedScores.filter(game => game.isLive);
+    const upcomingGames = transformedScores.filter(game => !game.isLive && !game.isCompleted);
+    const completedGames = transformedScores.filter(game => game.isCompleted);
+    
+    return (
+      <div 
+        key={sportKey} 
+        ref={sectionRefs[sportKey]}
+        className="mb-12"
+      >
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold">{sport.name}</h2>
+          
+          {/* Special case for soccer to select leagues */}
+          {sportKey === 'soccer' && (
+            <div className="relative">
+              <select
+                value={selectedLeague}
+                onChange={(e) => setSelectedLeague(e.target.value)}
+                className="appearance-none rounded-md border border-gray-300 px-4 py-2 pr-10 bg-white shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              >
+                {soccerLeagues.map(league => (
+                  <option key={league.id} value={league.id}>
+                    {league.flag} {league.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
+            </div>
+          )}
+        </div>
+        
+        {/* Loading State */}
+        {loading[sportKey] && (
+          <div className="bg-white rounded-lg shadow-sm p-6 flex justify-center items-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+            <span className="ml-3 font-medium text-gray-700">Loading {sport.name} data...</span>
+          </div>
+        )}
+        
+        {/* Error State */}
+        {error[sportKey] && (
+          <div className="bg-white rounded-lg shadow-sm p-6 text-center text-red-500">
+            <p className="font-bold mb-1">Oops! Something went wrong</p>
+            <p className="text-sm">{error[sportKey]}</p>
+          </div>
+        )}
+        
+        {/* Live Games Section */}
+        {!loading[sportKey] && liveGames.length > 0 && (
+          <section className="mb-8">
+            <h3 className="text-lg font-semibold mb-4 flex items-center">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2"></div>
+              Live Games
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {liveGames.map((game, index) => (
+                <div key={index} className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-shadow">
+                  <div className="p-4">
+                    {/* League & Time */}
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-xs font-medium bg-gray-100 px-2 py-1 rounded-full">{game.league}</span>
+                      <div className="flex items-center text-green-600">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-1"></div>
+                        <span className="text-xs font-medium">{game.time}</span>
+                      </div>
+                    </div>
+
+                    {/* Teams & Score */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex-1">
+                        <div className="flex items-center mb-2">
+                          {game.homeLogoUrl && (
+                            <div className="w-8 h-8 mr-3 relative flex-shrink-0">
+                              <Image 
+                                src={game.homeLogoUrl} 
+                                alt={game.homeTeam}
+                                fill
+                                className="object-contain"
+                              />
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <p className="font-medium text-sm truncate">{game.homeTeam}</p>
+                            {renderStats(game, true, sportKey)}
+                          </div>
+                          <p className="text-xl font-bold ml-auto">{game.homeScore}</p>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          {game.awayLogoUrl && (
+                            <div className="w-8 h-8 mr-3 relative flex-shrink-0">
+                              <Image 
+                                src={game.awayLogoUrl} 
+                                alt={game.awayTeam}
+                                fill
+                                className="object-contain"
+                              />
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <p className="font-medium text-sm truncate">{game.awayTeam}</p>
+                            {renderStats(game, false, sportKey)}
+                          </div>
+                          <p className="text-xl font-bold ml-auto">{game.awayScore}</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Venue & Broadcast */}
+                    <div className="flex justify-between items-center text-xs text-gray-500 mb-3">
+                      {game.venue && <span className="truncate max-w-[60%]">{game.venue}</span>}
+                      {game.broadcast && <span className="truncate max-w-[40%]">{game.broadcast}</span>}
+                    </div>
+                    
+                    {/* Link to full game details */}
+                    <Link 
+                      href={`/sports/game/${game.id}`}
+                      className="mt-2 text-xs text-blue-600 hover:text-blue-800 flex items-center"
+                    >
+                      <span>Live Stats & Play-by-Play</span>
+                      <ChevronRight className="w-3 h-3 ml-1" />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Upcoming Games Section */}
+        {!loading[sportKey] && upcomingGames.length > 0 && (
+          <section className="mb-8">
+            <h3 className="text-lg font-semibold mb-4">Upcoming Games</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {upcomingGames.map((game, index) => (
+                <div key={index} className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-shadow">
+                  <div className="p-4">
+                    {/* League & Time */}
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-xs font-medium bg-gray-100 px-2 py-1 rounded-full">{game.league}</span>
+                      <div className="flex items-center text-blue-600">
+                        <Clock className="w-3 h-3 mr-1" />
+                        <span className="text-xs font-medium">{game.startTime}</span>
+                      </div>
+                    </div>
+
+                    {/* Teams */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex-1">
+                        <div className="flex items-center mb-2">
+                          {game.homeLogoUrl && (
+                            <div className="w-6 h-6 mr-2 relative flex-shrink-0">
+                              <Image 
+                                src={game.homeLogoUrl} 
+                                alt={game.homeTeam}
+                                fill
+                                className="object-contain"
+                              />
+                            </div>
+                          )}
+                          <p className="font-medium text-sm truncate">{game.homeTeam}</p>
+                        </div>
+                        <div className="flex items-center">
+                          {game.awayLogoUrl && (
+                            <div className="w-6 h-6 mr-2 relative flex-shrink-0">
+                              <Image 
+                                src={game.awayLogoUrl} 
+                                alt={game.awayTeam}
+                                fill
+                                className="object-contain"
+                              />
+                            </div>
+                          )}
+                          <p className="font-medium text-sm truncate">{game.awayTeam}</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Venue & Broadcast */}
+                    {(game.venue || game.broadcast) && (
+                      <div className="text-xs text-gray-500 pt-2 border-t border-gray-100">
+                        {game.venue && <div className="truncate">{game.venue}</div>}
+                        {game.broadcast && <div className="truncate">TV: {game.broadcast}</div>}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Completed Games Section */}
+        {!loading[sportKey] && completedGames.length > 0 && (
+          <section className="mb-8">
+            <h3 className="text-lg font-semibold mb-4">Final Scores</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {completedGames.map((game, index) => (
+                <div key={index} className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-shadow">
+                  <div className="p-4">
+                    {/* League & Status */}
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-xs font-medium bg-gray-100 px-2 py-1 rounded-full">{game.league}</span>
+                      <span className="text-xs bg-gray-200 px-2 py-1 rounded-full font-medium">FINAL</span>
+                    </div>
+
+                    {/* Teams & Score */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex-1">
+                        <div className="flex items-center mb-2">
+                          {game.homeLogoUrl && (
+                            <div className="w-6 h-6 mr-2 relative flex-shrink-0">
+                              <Image 
+                                src={game.homeLogoUrl} 
+                                alt={game.homeTeam}
+                                fill
+                                className="object-contain"
+                              />
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <p className={`text-sm truncate ${game.homeScore > game.awayScore ? 'font-semibold' : ''}`}>{game.homeTeam}</p>
+                            {renderStats(game, true, sportKey)}
+                          </div>
+                          <p className={`text-lg font-bold ml-auto ${game.homeScore > game.awayScore ? 'text-green-600' : ''}`}>{game.homeScore}</p>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          {game.awayLogoUrl && (
+                            <div className="w-6 h-6 mr-2 relative flex-shrink-0">
+                              <Image 
+                                src={game.awayLogoUrl} 
+                                alt={game.awayTeam}
+                                fill
+                                className="object-contain"
+                              />
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <p className={`text-sm truncate ${game.awayScore > game.homeScore ? 'font-semibold' : ''}`}>{game.awayTeam}</p>
+                            {renderStats(game, false, sportKey)}
+                          </div>
+                          <p className={`text-lg font-bold ml-auto ${game.awayScore > game.homeScore ? 'text-green-600' : ''}`}>{game.awayScore}</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Link to recap */}
+                    <Link 
+                      href={`/sports/game/${game.id}`}
+                      className="mt-2 text-xs text-blue-600 hover:text-blue-800 flex items-center"
+                    >
+                      <span>Game Recap</span>
+                      <ChevronRight className="w-3 h-3 ml-1" />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* No Games Message */}
+        {!loading[sportKey] && sportData.length === 0 && (
+          <div className="bg-white rounded-lg shadow-sm p-6 text-center mb-8">
+            <p className="text-gray-500">No games scheduled for today.</p>
+          </div>
+        )}
+
+        {/* Latest Sports Posts - Twitter Style */}
+        {!loading[sportKey] && news[sportKey]?.length > 0 && (
+          <section>
+            <h3 className="text-lg font-semibold mb-4">Latest {sport.name} Posts</h3>
+            <div className="space-y-4">
+              {news[sportKey].slice(0, 5).map((article, i) => (
+                <article key={i} className="bg-white rounded-lg shadow-sm border border-gray-100 p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 mr-3">
+                        <Image
+                          src={article.images?.[0]?.url || `/placeholder-sports-${i + 1}.jpg`}
+                          alt={article.headline || "Sports news thumbnail"}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{article.headline || "Sports News"}</p>
+                        <p className="text-xs font-medium text-gray-500">{article.description || "Latest updates from the sports world..."}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center text-sm text-gray-500">
+                      <span>{article.published ? new Date(article.published).toLocaleDateString() : "Today"}</span>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <main className="max-w-7xl mx-auto px-4 py-6">
+      {/* Sports Navigation - Tabs */}
+      <section className="mb-8 sticky top-0 bg-white z-10 py-2 border-b border-gray-200">
+        <div className="flex overflow-x-auto pb-2 hide-scrollbar">
+          {/* In-Season Sports First */}
+          {Object.entries(allSports)
+            .sort(([, a], [, b]) => {
+              // Sort by in-season status first, then alphabetically
+              if (a.inSeason && !b.inSeason) return -1;
+              if (!a.inSeason && b.inSeason) return 1;
+              return a.name.localeCompare(b.name);
+            })
+            .map(([key, sport]) => (
+              <button
+                key={key}
+                onClick={() => scrollToSection(key)}
+                className={`px-4 py-2 mr-2 rounded-md whitespace-nowrap transition-all
+                  ${selectedSport === key 
+                    ? `${sport.color} text-white` 
+                    : 'bg-gray-100 hover:bg-gray-200'
+                  }`}
+              >
+                <span className="font-medium">{sport.name}</span>
+                {sport.inSeason && (
+                  <span className="ml-1 w-2 h-2 bg-white rounded-full inline-block"></span>
+                )}
+              </button>
+            ))
+          }
+        </div>
+      </section>
+
+      {/* Render in-season sports first, then out-of-season */}
+      {Object.keys(allSports)
+        .sort((a, b) => {
+          const sportA = allSports[a as keyof typeof allSports];
+          const sportB = allSports[b as keyof typeof allSports];
+          if (sportA.inSeason && !sportB.inSeason) return -1;
+          if (!sportA.inSeason && sportB.inSeason) return 1;
+          return sportA.name.localeCompare(sportB.name);
+        })
+        .map(sportKey => renderSportSection(sportKey))
+      }
+    </main>
+  )
+}

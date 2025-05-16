@@ -1,0 +1,90 @@
+citydigest_v2/
+├── docker-compose.yml           # Main docker-compose file for all services
+├── .env                         # Environment variables for all services
+├── Dockerfile.scheduler         # Dockerfile for scheduler service
+├── Dockerfile.scraper           # Dockerfile for scraper service
+├── Dockerfile.digest            # Dockerfile for digest service
+├── requirements.common.txt      # Common requirements for all services
+├── requirements.scheduler.txt   # Scheduler-specific requirements
+├── requirements.scraper.txt     # Scraper-specific requirements
+├── requirements.digest.txt      # Digest-specific requirements
+├── deploy.sh                    # Main deployment script
+├── README.md                    # Project documentation
+│
+├── shared/                      # Shared code used by all services
+│   ├── __init__.py
+│   ├── config/                  # Shared configuration
+│   │   ├── __init__.py
+│   │   ├── cities.py            # City configuration data
+│   │   └── settings.py          # Global application settings
+│   │
+│   ├── db/                      # Database connections and models
+│   │   ├── __init__.py
+│   │   └── supabase_integration.py
+│   │
+│   ├── models/                  # Shared data models
+│   │   ├── __init__.py
+│   │   ├── article.py           # Article data model
+│   │   └── digest.py            # Digest data model
+│   │
+│   └── utils/                   # Shared utilities
+│       ├── __init__.py
+│       ├── logging.py           # Logging configuration
+│       └── helpers.py           # Misc helper functions
+│
+├── services/                    # Service-specific code
+│   ├── scheduler/               # Scheduler service
+│   │   ├── __init__.py
+│   │   ├── app.py               # Scheduler main application
+│   │   ├── tasks.py             # Task definitions
+│   │   └── api/                 # API endpoints (if applicable)
+│   │       ├── __init__.py
+│   │       └── routes.py
+│   │
+│   ├── scraper/                 # Scraper service
+│   │   ├── __init__.py
+│   │   ├── app.py               # Scraper main application
+│   │   ├── api/                 # API endpoints
+│   │   │   ├── __init__.py
+│   │   │   └── routes.py
+│   │   │
+│   │   └── scrapers/            # Scraper implementations
+│   │       ├── __init__.py
+│   │       ├── base_scraper.py  # Base scraper class
+│   │       └── states/          # State-specific scrapers
+│   │           ├── georgia/
+│   │           │   └── atlanta_scraper.py
+│   │           ├── iowa/
+│   │           │   └── des_moines_scraper.py
+│   │           └── ...
+│   │
+│   └── digest/                  # Digest generation service
+│       ├── __init__.py
+│       ├── app.py               # Digest generator main application
+│       ├── api/                 # API endpoints
+│       │   ├── __init__.py
+│       │   └── routes.py
+│       │
+│       ├── generator/           # Digest generation logic
+│       │   ├── __init__.py
+│       │   ├── digest_generator.py
+│       │   └── templates/       # Digest templates
+│       │       └── digest_template.md
+│       │
+│       └── llm/                 # Language model integration
+│           ├── __init__.py
+│           └── mixtral_client.py
+│
+├── data/                        # Mounted data directory (shared between services)
+│   ├── cities/                  # Organized by city
+│   │   ├── atlanta/
+│   │   │   ├── news/            # Scraped news articles
+│   │   │   └── digests/         # Generated digests
+│   │   └── ...
+│   │
+│   └── continuous/              # Continuous scraping results
+│
+└── logs/                        # Log files
+    ├── scheduler/
+    ├── scraper/
+    └── digest/

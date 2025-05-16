@@ -1,0 +1,6 @@
+scp root@143.244.176.32:/tmp/citydigest-full.tar.gz ~/Downloads/
+
+
+
+
+

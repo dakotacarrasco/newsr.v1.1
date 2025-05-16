@@ -1,0 +1,1 @@
+from .san_diego_scraper import SanDiegoNewsScraper 

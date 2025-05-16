@@ -1,0 +1,82 @@
+{
+  "city_code": "san_diego",
+  "city_name": "San Diego",
+  "region": "California",
+  "date": "2025-03-22",
+  "headline": "San Diego Zoo Welcomes Rare Amur Leopard Cub",
+  "content": "As the sun dips below the horizon, painting the San Diego sky with hues of orange and pink, the city's iconic sea lions bark their goodnights from the shores of La Jolla Cove. The natural beauty of our city sets the stage for another day of vibrant community life. Here’s what’s happening around town:\n\n**Weather Update:**\nCurrently, we're enjoying a partly cloudy day with a comfortable temperature of 60°F. The humidity is at 78%, with a gentle southwesterly wind blowing at 7 mph. Looking ahead, Saturday will be partly cloudy with highs of 65°F and lows of 53°F. Sunday brings cloudier skies but similar temperatures. Monday and Tuesday will see partly cloudy to misty conditions, with temperatures hovering around 66°F. By Wednesday, we can expect sunny skies and a slight warming trend, with highs reaching 66°F and lows at 58°F. Enjoy the pleasant weather!\n\n**Community News:**\nThe San Diego Zoo is celebrating the birth of a rare Amur leopard cub, a significant event for the endangered species. Zoo officials are thrilled with the new addition, noting that there are fewer than 90 Amur leopards left in the wild. \"This birth is a testament to our conservation efforts and gives us hope for the future of this magnificent species,\" said Dr. Carmi Penny, the zoo's director of wildlife care and conservation.\n\nIn local politics, Mayor Todd Gloria announced a new initiative to combat homelessness in downtown San Diego. The plan includes the construction of temporary housing units and increased funding for mental health services. While some residents praise the mayor's proactive approach, others express concern about the financial burden on taxpayers. \"We need to address this issue, but we also need to ensure that our taxes are being used efficiently,\" said local activist Maria Rodriguez.\n\n**Sports Highlights:**\nThe San Diego State Aztecs men's basketball team secured a spot in the NCAA tournament's Sweet 16 after a thrilling victory over the University of Kentucky. Coach Brian Dutcher praised his team's resilience, saying, \"These guys have shown incredible heart and determination all season. We're excited to keep this momentum going.\" Fans are already planning watch parties across the city to support their home team.\n\n**Education and Business:**\nThe University of California, San Diego (UCSD) unveiled plans for a new research facility focused on climate change and sustainability. The $50 million project aims to attract top researchers and foster collaborations with local industries. \"This facility will position UCSD at the forefront of climate research and innovation,\" said Chancellor Pradeep Khosla.\n\nOn the business front, Qualcomm announced a major expansion of its 5G technology division, creating over 1,000 new jobs in the region. The tech giant's investment is expected to boost the local economy and solidify San Diego's status as a hub for technological innovation. \"This expansion reflects our commitment to driving the future of connectivity and creating high-quality jobs in our community,\" said Qualcomm CEO Cristiano Amon.\n\n**Crime and Safety:**\nThe San Diego Police Department reported a decrease in violent crime rates over the past quarter, attributing the success to increased community policing efforts. However, there has been a recent uptick in petty theft and vandalism in the Gaslamp Quarter. Police Chief David Nisleit urged residents to remain vigilant and report any suspicious activity. \"Community involvement is crucial in maintaining a safe environment for everyone,\" he stated.\n\n**Local Events:**\nPreparations are underway for the annual San Diego Beer Week, scheduled to kick off next month. The event will feature over 100 local breweries, showcasing the city's thriving craft beer scene. Organizers expect a record turnout, with beer enthusiasts from across the country flocking to San Diego for the festivities.\n\n**Quick Notes:**\n- The San Diego Symphony announced its summer concert series, featuring performances at the Rady Shell at Jacobs Park.\n- A new mural by local artist Jason Gould is set to be unveiled in the East Village, celebrating the city's diverse cultural heritage.\n- The Balboa Park Conservancy is hosting a series of free yoga classes in the park, encouraging residents to stay active and enjoy the outdoors.\n\nStay tuned for more updates, and enjoy your weekend, San Diego!",
+  "sources": [],
+  "article_count": 0,
+  "featured_image": "",
+  "featured_image_context": {
+    "title": "",
+    "source": "",
+    "url": ""
+  },
+  "image_gallery": [],
+  "intro_style": 19,
+  "weather": {
+    "current": {
+      "temp": 60,
+      "feels_like": 60,
+      "description": "Partly cloudy",
+      "icon": "//cdn.weatherapi.com/weather/64x64/night/116.png",
+      "humidity": 78,
+      "wind_speed": 7,
+      "wind_dir": "SW",
+      "uv": 0.0
+    },
+    "forecast": [
+      {
+        "date": "Saturday, Mar 22",
+        "temp_high": 65,
+        "temp_low": 53,
+        "description": "Partly Cloudy ",
+        "icon": "//cdn.weatherapi.com/weather/64x64/day/116.png",
+        "chance_of_rain": 0,
+        "sunrise": "06:49 AM",
+        "sunset": "07:02 PM"
+      },
+      {
+        "date": "Sunday, Mar 23",
+        "temp_high": 60,
+        "temp_low": 53,
+        "description": "Cloudy ",
+        "icon": "//cdn.weatherapi.com/weather/64x64/day/119.png",
+        "chance_of_rain": 0,
+        "sunrise": "06:48 AM",
+        "sunset": "07:03 PM"
+      },
+      {
+        "date": "Monday, Mar 24",
+        "temp_high": 66,
+        "temp_low": 53,
+        "description": "Partly Cloudy ",
+        "icon": "//cdn.weatherapi.com/weather/64x64/day/116.png",
+        "chance_of_rain": 0,
+        "sunrise": "06:46 AM",
+        "sunset": "07:03 PM"
+      },
+      {
+        "date": "Tuesday, Mar 25",
+        "temp_high": 66,
+        "temp_low": 53,
+        "description": "Mist",
+        "icon": "//cdn.weatherapi.com/weather/64x64/day/143.png",
+        "chance_of_rain": 0,
+        "sunrise": "06:45 AM",
+        "sunset": "07:04 PM"
+      },
+      {
+        "date": "Wednesday, Mar 26",
+        "temp_high": 66,
+        "temp_low": 58,
+        "description": "Sunny",
+        "icon": "//cdn.weatherapi.com/weather/64x64/day/113.png",
+        "chance_of_rain": 0,
+        "sunrise": "06:44 AM",
+        "sunset": "07:05 PM"
+      }
+    ]
+  }
+}

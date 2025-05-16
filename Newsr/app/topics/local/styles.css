@@ -1,0 +1,125 @@
+.location-dropdown {
+  transition: all 0.2s ease;
+}
+
+.location-dropdown-item {
+  transition: background-color 0.1s ease;
+}
+
+.location-dropdown-item.active {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* Match the bold black border style throughout the app */
+.bold-border {
+  border: 2px solid black;
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+}
+
+/* For weather component alignment consistency */
+.weather-container {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* Local news page specific styles */
+
+.local-header {
+  border-bottom: 1px solid black;
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #1a202c;
+}
+
+.card {
+  border: 1px solid black;
+  border-radius: 0;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 0.1);
+}
+
+.badge {
+  border-radius: 0;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+}
+
+.badge-blue {
+  background-color: #ebf5ff;
+  color: #1e40af;
+  border: 1px solid #1e40af;
+}
+
+.badge-green {
+  background-color: #ecfdf5;
+  color: #047857;
+  border: 1px solid #047857;
+}
+
+.badge-red {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #b91c1c;
+}
+
+.badge-yellow {
+  background-color: #fffbeb;
+  color: #a16207;
+  border: 1px solid #a16207;
+}
+
+/* Custom spinner for loading states */
+.spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(0, 0, 0, 0.2);
+  border-radius: 0;
+  border-top-color: #000;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Weather display styles for the page header */
+.weather-display {
+  display: flex;
+  align-items: center;
+}
+
+.weather-temp-current {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+.weather-temp-range {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.weather-temp-high {
+  color: #e53e3e;
+  font-weight: 500;
+}
+
+.weather-temp-low {
+  color: #3182ce;
+  font-weight: 500;
+} 

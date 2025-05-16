@@ -1,0 +1,1 @@
+from .las_vegas_scraper import LasVegasNewsScraper 

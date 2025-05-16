@@ -1,0 +1,20 @@
+{
+  "city_code": "seattle",
+  "city_name": "Seattle",
+  "region": "Washington",
+  "date": "2025-04-13",
+  "headline": "Enjoy a Quiet Sunday in Seattle!",
+  "content": "**[Enjoy a Quiet Sunday in Seattle!]**\n\nGood morning, Seattle!\n\nThe city is waking up to a peaceful Sunday morning. The Space Needle stands tall against a clear blue sky, while the Pike Place Market is beginning to buzz with locals and visitors alike, enjoying the first light of day. The calming waters of Puget Sound provide a serene backdrop as Seattleites ease into the weekend.\n\nWEATHER UPDATE:\n\nExpect a pleasant day ahead with temperatures reaching up to 70°F. It's perfect for a light jacket or sweater as you stroll around Green Lake or explore the Seattle Center. The sun will be out, making it an ideal day for outdoor activities. Travel conditions are favorable, with no significant disruptions expected on roads or ferries.\n\nStay tuned for more updates, and have a great day, Seattle!",
+  "sections": [
+    {
+      "title": "Digest Content",
+      "content": "**[Enjoy a Quiet Sunday in Seattle!]**\n\nGood morning, Seattle!\n\nThe city is waking up to a peaceful Sunday morning. The Space Needle stands tall against a clear blue sky, while the Pike Place Market is beginning to buzz with locals and visitors alike, enjoying the first light of day. The calming waters of Puget Sound provide a serene backdrop as Seattleites ease into the weekend.\n\nWEATHER UPDATE:\n\nExpect a pleasant day ahead with temperatures reaching up to 70°F. It's perfect for a light jacket or sweater as you stroll around Green Lake or explore the Seattle Center. The sun will be out, making it an ideal day for outdoor activities. Travel conditions are favorable, with no significant disruptions expected on roads or ferries.\n\nStay tuned for more updates, and have a great day, Seattle!",
+      "headline": "Enjoy a Quiet Sunday in Seattle!"
+    }
+  ],
+  "sources": [
+    "System Message"
+  ],
+  "article_count": 1,
+  "status": "active"
+}

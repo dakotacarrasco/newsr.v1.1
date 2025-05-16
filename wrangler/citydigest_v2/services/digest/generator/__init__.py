@@ -1,0 +1,1 @@
+"""Digest generator module for CityDigest.""" 

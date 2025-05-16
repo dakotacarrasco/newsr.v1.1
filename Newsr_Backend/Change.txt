@@ -1,0 +1,48 @@
+# Changes Log (Updated)
+
+## 1. Controller Improvements
+- Standardized articleController.ts
+- Added consistent error handling with AppError
+- Improved response formatting
+- Added proper type checking for AuthRequest
+- Implemented pagination for article list
+
+## 2. Authentication & Authorization
+- Created auth.ts middleware
+- Standardized authentication approach
+- Added proper TypeScript interfaces
+- Implemented consistent error responses
+- Fixed token validation logic
+
+## 3. Route Standardization
+- Created standardized route files
+- Created articles.ts with proper middleware and authentication
+- Created polls.ts with proper route handling
+- Implemented caching for GET routes
+
+## 4. Supabase Integration
+- Created a centralized Supabase client
+- Added error handling for missing credentials
+- Added helper function for checking record existence
+
+## 5. Caching System
+- Implemented route-level caching with NodeCache
+- Added cache key generation based on URL and parameters
+- Created function to selectively clear cache
+
+## 6. Error Handling
+- Implemented custom AppError class
+- Created global error handling middleware
+- Added environment-specific error details
+
+## 7. Application Structure
+- Updated main app file
+- Organized middleware registration
+- Added rate limiting
+- Set up route registration
+- Added 404 handler
+
+## 8. Server Configuration
+- Separated server concerns from app configuration
+- Added graceful shutdown
+- Implemented unhandled rejection handling

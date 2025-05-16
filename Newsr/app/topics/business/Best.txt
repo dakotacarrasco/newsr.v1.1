@@ -1,0 +1,418 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { Article } from '@/lib/supabase'
+import { Clock, TrendingUp, ArrowUp, ArrowDown, Globe, DollarSign, BarChart3, FileText } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
+import styles from '@/styles/Business.module.css'
+import PollWidget from '@/components/shared/PollWidget'
+
+const mockStockData = [
+  { name: 'NASDAQ', value: '14,897.24', change: '+1.2%', positive: true },
+  { name: 'DOW', value: '35,390.15', change: '-0.4%', positive: false },
+  { name: 'S&P 500', value: '4,556.62', change: '+0.8%', positive: true }
+]
+
+const mockNews = [
+  { symbol: 'AAPL', change: '+2.3%', price: '$189.84' },
+  { symbol: 'TSLA', change: '-1.5%', price: '$238.45' },
+  { symbol: 'MSFT', change: '+1.8%', price: '$378.85' },
+  { symbol: 'AMZN', change: '+0.7%', price: '$145.68' },
+  { symbol: 'GOOGL', change: '+1.2%', price: '$134.99' },
+  { symbol: 'META', change: '+0.9%', price: '$341.49' },
+  { symbol: 'NFLX', change: '+3.1%', price: '$628.75' },
+  { symbol: 'NVDA', change: '+2.7%', price: '$487.22' },
+  { symbol: 'AMD', change: '-0.8%', price: '$172.36' },
+  { symbol: 'INTC', change: '-1.2%', price: '$43.18' },
+  { symbol: 'PYPL', change: '+0.5%', price: '$62.47' },
+  { symbol: 'ADBE', change: '+1.4%', price: '$512.90' }
+]
+
+const mockForexData = [
+  { pair: 'EUR/USD', value: '1.0934', change: '-0.15%' },
+  { pair: 'GBP/USD', value: '1.2631', change: '+0.22%' },
+  { pair: 'USD/JPY', value: '149.45', change: '+0.31%' }
+]
+
+const mockCommodities = [
+  { name: 'Gold', value: '$2,043.50', change: '+0.8%' },
+  { name: 'Oil (WTI)', value: '$74.35', change: '-1.2%' },
+  { name: 'Natural Gas', value: '$2.81', change: '+2.1%' }
+]
+
+export default function BusinessPage() {
+  const [articles, setArticles] = useState<Article[]>([])
+  const [userVotes, setUserVotes] = useState<Record<string | number, any>>({})
+
+  const handleVote = (pollId: string | number, optionId: any) => {
+    setUserVotes(prev => ({
+      ...prev,
+      [pollId]: optionId
+    }))
+    // In a real app, you would send this vote to your backend
+  }
+
+  return (
+    <main className={styles.container}>
+      {/* Market Ticker */}
+      <div className={styles.ticker}>
+        <div className={styles.tickerTrack}>
+          {[...mockNews, ...mockNews].map((item, index) => (
+            <span key={index} className={styles.tickerItem}>
+              {item.symbol} {item.price} <span className={item.change.startsWith('+') ? styles.positive : styles.negative}>
+                {item.change}
+              </span>
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Market Overview Section */}
+      <div className={styles.marketOverview}>
+        <div className={styles.marketCard}>
+          <h2 className="text-2xl font-bold mb-4">Market Overview</h2>
+          <div className={styles.indexGrid}>
+            {mockStockData.map((index, i) => (
+              <div key={i} className={styles.index}>
+                <h3 className="font-bold">{index.name}</h3>
+                <p className="text-xl">{index.value}</p>
+                <p className={index.positive ? styles.positive : styles.negative}>
+                  {index.change}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.bitcoinCard}>
+          <h2 className="text-2xl font-bold mb-4">Bitcoin</h2>
+          <div className="text-center">
+            <p className="text-3xl font-bold">$43,256.78</p>
+            <p className={styles.positive}>+3.2%</p>
+            <p className="text-sm text-gray-600 mt-2">24h Volume: $28.5B</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Forex and Commodities Grid */}
+      <div className={styles.dataGrid}>
+        <div className={styles.dataCard}>
+          <div className="flex items-center gap-2 mb-4">
+            <Globe className="w-5 h-5" />
+            <h2 className="text-xl font-bold">Forex Markets</h2>
+          </div>
+          <div className={styles.dataTable}>
+            {mockForexData.map((pair, index) => (
+              <div key={index} className={styles.dataRow}>
+                <span className="font-bold">{pair.pair}</span>
+                <span>{pair.value}</span>
+                <span className={pair.change.startsWith('+') ? styles.positive : styles.negative}>
+                  {pair.change}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.dataCard}>
+          <div className="flex items-center gap-2 mb-4">
+            <DollarSign className="w-5 h-5" />
+            <h2 className="text-xl font-bold">Commodities</h2>
+          </div>
+          <div className={styles.dataTable}>
+            {mockCommodities.map((commodity, index) => (
+              <div key={index} className={styles.dataRow}>
+                <span className="font-bold">{commodity.name}</span>
+                <span>{commodity.value}</span>
+                <span className={commodity.change.startsWith('+') ? styles.positive : styles.negative}>
+                  {commodity.change}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Latest Business Articles */}
+      <section className={styles.articles}>
+        <h2 className="text-3xl font-bold mb-6">Latest Business News</h2>
+        <div className={styles.articleGrid}>
+          {[1, 2, 3].map((_, i) => (
+            <div key={i} className={styles.articleCard}>
+              <span className={styles.category}>Finance</span>
+              <h3 className="text-xl font-bold mb-2">Global Markets Show Resilience Amid Economic Challenges</h3>
+              <p className="text-gray-600">Analysis of market trends and economic indicators pointing towards recovery...</p>
+              <span className={styles.date}>2 hours ago</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <PollWidget
+            id="investmentStrategy"
+            question="How will inflation affect your investment strategy?"
+            options={[
+              { id: 1, text: "Shifting to defensive assets", votes: 432 },
+              { id: 2, text: "Increasing cash positions", votes: 287 },
+              { id: 3, text: "Focusing on inflation-resistant sectors", votes: 521 },
+              { id: 4, text: "No changes to strategy", votes: 189 }
+            ]}
+            category="Investment"
+            theme="blue"
+          />
+          
+          <PollWidget
+            id="quickPoll"
+            question="Following today's Fed announcement, how do you expect markets to react?"
+            options={[
+              { id: 'positive', text: "Positive rally across markets", votes: 342 },
+              { id: 'mixed', text: "Mixed reaction, sector-dependent", votes: 567 },
+              { id: 'negative', text: "Negative reaction, markets down", votes: 231 },
+              { id: 'neutral', text: "Neutral, no significant change", votes: 189 }
+            ]}
+            category="Markets"
+            theme="red"
+            trending={true}
+          />
+        </div>
+      </section>
+
+      <section className="mb-12">
+        <div className="border-2 border-black bg-white p-6 relative">
+          <div className="absolute -top-4 -right-4 bg-blue-500 h-8 w-8 border-2 border-black"></div>
+          <div className="flex items-center gap-2 mb-6">
+            <BarChart3 className="w-6 h-6 text-blue-500" />
+            <h2 className="text-2xl font-bold">Weekly Sentiment Poll</h2>
+          </div>
+          
+          <div className="mb-4 p-4 border-2 border-black">
+            <h3 className="font-bold mb-4">What's your market outlook for the next week?</h3>
+            
+            <div className="space-y-3">
+              {!userVotes['weeklySentiment'] ? (
+                <>
+                  <button 
+                    onClick={() => handleVote('weeklySentiment', 'bullish')}
+                    className="w-full border-2 border-black py-2 px-4 text-left hover:bg-green-50 transition-colors"
+                  >
+                    Bullish
+                  </button>
+                  <button 
+                    onClick={() => handleVote('weeklySentiment', 'somewhat-bullish')}
+                    className="w-full border-2 border-black py-2 px-4 text-left hover:bg-green-50 transition-colors"
+                  >
+                    Somewhat Bullish
+                  </button>
+                  <button 
+                    onClick={() => handleVote('weeklySentiment', 'neutral')}
+                    className="w-full border-2 border-black py-2 px-4 text-left hover:bg-gray-50 transition-colors"
+                  >
+                    Neutral
+                  </button>
+                  <button 
+                    onClick={() => handleVote('weeklySentiment', 'somewhat-bearish')}
+                    className="w-full border-2 border-black py-2 px-4 text-left hover:bg-red-50 transition-colors"
+                  >
+                    Somewhat Bearish
+                  </button>
+                  <button 
+                    onClick={() => handleVote('weeklySentiment', 'bearish')}
+                    className="w-full border-2 border-black py-2 px-4 text-left hover:bg-red-50 transition-colors"
+                  >
+                    Bearish
+                  </button>
+                </>
+              ) : (
+                <div>
+                  <p className="font-bold mb-4">Thanks for your input!</p>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <span>Bullish: 34%</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-green-300 rounded-full"></div>
+                      <span>Somewhat Bullish: 28%</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                      <span>Neutral: 15%</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-red-300 rounded-full"></div>
+                      <span>Somewhat Bearish: 12%</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                      <span>Bearish: 11%</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <div className="p-4 border-2 border-black">
+            <h4 className="font-bold mb-3">Sentiment Trend (Last 4 Weeks)</h4>
+            <div className="h-40 w-full bg-gray-100 border border-gray-300 p-2 relative">
+              {/* This would be a chart in a real implementation */}
+              <div className="absolute bottom-2 left-0 right-0 h-px bg-gray-400"></div>
+              <div className="flex justify-between h-full">
+                <div className="flex flex-col justify-end items-center">
+                  <div className="w-8 bg-green-500" style={{ height: '60%' }}></div>
+                  <span className="text-xs mt-1">Week 1</span>
+                </div>
+                <div className="flex flex-col justify-end items-center">
+                  <div className="w-8 bg-green-500" style={{ height: '45%' }}></div>
+                  <span className="text-xs mt-1">Week 2</span>
+                </div>
+                <div className="flex flex-col justify-end items-center">
+                  <div className="w-8 bg-red-500" style={{ height: '30%' }}></div>
+                  <span className="text-xs mt-1">Week 3</span>
+                </div>
+                <div className="flex flex-col justify-end items-center">
+                  <div className="w-8 bg-green-500" style={{ height: '65%' }}></div>
+                  <span className="text-xs mt-1">Week 4</span>
+                </div>
+              </div>
+
+            </div>
+            <div className="text-xs text-gray-500 mt-2 text-right">
+              Based on 4,328 weekly responses
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mb-12">
+        <h2 className="text-2xl font-bold mb-6">Related Polls</h2>
+        <div className="grid grid-cols-2 gap-6">
+          {[
+            {
+              id: 'article1',
+              title: 'Tech Stocks Rally After Earnings',
+              poll: {
+                question: 'Which tech stock has the most upside potential?',
+                options: [
+                  { id: 1, text: 'Apple (AAPL)', votes: 342 },
+                  { id: 2, text: 'Microsoft (MSFT)', votes: 287 },
+                  { id: 3, text: 'Google (GOOGL)', votes: 198 },
+                  { id: 4, text: 'Amazon (AMZN)', votes: 245 }
+                ],
+                totalVotes: 1072
+              }
+            },
+            {
+              id: 'article2',
+              title: 'Oil Prices Surge Amid Supply Concerns',
+              poll: {
+                question: 'How will oil prices affect the broader market?',
+                options: [
+                  { id: 1, text: 'Negative impact across sectors', votes: 187 },
+                  { id: 2, text: 'Limited impact, markets resilient', votes: 243 },
+                  { id: 3, text: 'Positive for energy, negative elsewhere', votes: 312 },
+                  { id: 4, text: 'Temporary effect only', votes: 156 }
+                ],
+                totalVotes: 898
+              }
+            }
+          ].map((item) => (
+            <div key={item.id} className="border-2 border-black bg-white">
+              <div className="p-4 border-b-2 border-black">
+                <h3 className="font-bold">{item.title}</h3>
+                <p className="text-sm text-gray-600">Related poll</p>
+              </div>
+              <div className="p-4">
+                <h4 className="font-medium mb-3">{item.poll.question}</h4>
+                <div className="space-y-2">
+                  {item.poll.options.map((option) => {
+                    const percentage = Math.round((option.votes / item.poll.totalVotes) * 100);
+                    return (
+                      <div key={option.id} className="space-y-1">
+                        <div className="flex justify-between text-sm">
+                          <span>{option.text}</span>
+                          <span>{percentage}%</span>
+                        </div>
+                        <div className="w-full bg-gray-200 h-2">
+                          <div 
+                            className="bg-blue-500 h-full" 
+                            style={{ width: `${percentage}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="text-xs text-gray-500 mt-3 text-right">
+                  {item.poll.totalVotes} votes
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Related Articles Section */}
+      <section className="mb-12">
+        <div className="flex items-center gap-2 mb-6">
+          <FileText className="w-6 h-6 text-blue-500" />
+          <h2 className="text-2xl font-bold">Related Business Articles</h2>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[
+            {
+              id: 1,
+              title: "The Future of Digital Currencies in Global Finance",
+              excerpt: "Exploring how central banks and financial institutions are adapting to the rise of digital currencies...",
+              category: "Finance",
+              time: "3 hours ago",
+              image: "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+            },
+            {
+              id: 2,
+              title: "Supply Chain Innovations Reshaping Retail",
+              excerpt: "How AI and blockchain technologies are transforming supply chain management for major retailers...",
+              category: "Retail",
+              time: "5 hours ago",
+              image: "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+            },
+            {
+              id: 3,
+              title: "The Changing Landscape of Work: Remote vs. Office",
+              excerpt: "Analysis of how companies are balancing remote work policies with traditional office environments...",
+              category: "Workplace",
+              time: "Yesterday",
+              image: "https://images.unsplash.com/photo-1497215842964-222b430dc094?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
+            }
+          ].map((article) => (
+            <div key={article.id} className={styles.articleCard}>
+              <div className="relative h-40 mb-4 overflow-hidden border-2 border-black">
+                <Image
+                  src={article.image}
+                  alt={article.title}
+                  fill
+                  className="object-cover transition-transform duration-500 hover:scale-105"
+                />
+              </div>
+              <span className={styles.category}>{article.category}</span>
+              <h3 className="text-xl font-bold mb-2">{article.title}</h3>
+              <p className="text-gray-600 mb-4 line-clamp-2">{article.excerpt}</p>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-500 flex items-center gap-1">
+                  <Clock className="w-4 h-4" />
+                  {article.time}
+                </span>
+                <button className="text-blue-500 font-medium hover:underline">Read more</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </main>
+  )
+}
+

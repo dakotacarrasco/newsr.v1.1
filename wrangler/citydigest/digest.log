@@ -1,0 +1,36 @@
+2025-04-27 09:52:29,910 - root - ERROR - Error creating scraper for abq: No module named 'citydigest.scrapers.abq_scraper'
+2025-04-27 09:52:29,910 - citydigest - ERROR - Error scraping city abq: No module named 'citydigest.scrapers.abq_scraper'
+2025-04-27 09:54:52,324 - abq_scraper - INFO - Albuquerque News Scraper initialized
+2025-04-27 09:54:52,324 - abq_scraper - INFO - ABQ News Scraper initialized with 1 sources
+2025-04-27 09:54:52,334 - selenium.webdriver.common.selenium_manager - INFO - Applicable driver not found; attempting to install with Selenium Manager (Beta)
+2025-04-27 09:54:53,038 - selenium.webdriver.common.driver_finder - WARNING - Unable to obtain driver using Selenium Manager: Selenium Manager failed for: C:\Python311\Lib\site-packages\selenium\webdriver\common\windows\selenium-manager.exe --browser chrome --output json.
+The chromedriver version cannot be discovered
+2025-04-27 09:54:53,143 - abq_scraper - WARNING - Default Chrome initialization failed: Message: Selenium Manager failed for: C:\Python311\Lib\site-packages\selenium\webdriver\common\windows\selenium-manager.exe --browser chrome --output json.
+The chromedriver version cannot be discovered
+
+2025-04-27 09:54:53,164 - WDM - INFO - ====== WebDriver manager ======
+2025-04-27 09:54:54,451 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-27 09:54:54,521 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-27 09:54:54,562 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-27 09:54:54,670 - WDM - INFO - WebDriver version 135.0.7049.114 selected
+2025-04-27 09:54:54,674 - WDM - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/135.0.7049.114/win32/chromedriver-win32.zip
+2025-04-27 09:54:54,674 - WDM - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/135.0.7049.114/win32/chromedriver-win32.zip
+2025-04-27 09:54:54,730 - WDM - INFO - Driver downloading response is 200
+2025-04-27 09:54:54,884 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-27 09:54:55,628 - WDM - INFO - Driver has been saved in cache [C:\Users\dakot\.wdm\drivers\chromedriver\win64\135.0.7049.114]
+2025-04-27 09:54:55,630 - abq_scraper - INFO - ChromeDriver installed at: C:\Users\dakot\.wdm\drivers\chromedriver\win64\135.0.7049.114\chromedriver-win32/THIRD_PARTY_NOTICES.chromedriver
+2025-04-27 09:54:55,648 - abq_scraper - ERROR - Error initializing WebDriver: [WinError 193] %1 is not a valid Win32 application
+2025-04-27 09:54:55,648 - citydigest - ERROR - Error scraping city abq: [WinError 193] %1 is not a valid Win32 application
+2025-04-27 09:59:58,747 - abq_scraper - INFO - Albuquerque News Scraper initialized
+2025-04-27 09:59:58,747 - abq_scraper - INFO - ABQ News Scraper initialized with 1 sources
+2025-04-27 10:00:01,022 - abq_scraper - INFO - WebDriver initialized successfully
+2025-04-27 10:00:01,022 - abq_scraper - INFO - Scraping Albuquerque Journal...
+2025-04-27 10:00:02,777 - abq_scraper - INFO - Navigated to https://www.abqjournal.com/
+2025-04-27 10:00:06,843 - abq_scraper - INFO - Found 54 elements with selector: .headline a, .entry-title a, .tnt-headline a
+2025-04-27 10:00:07,006 - abq_scraper - INFO - Found 15 article links for Albuquerque Journal
+2025-04-27 10:00:08,497 - abq_scraper - INFO - Navigating to article: https://www.abqjournal.com/news/article_ef3a9ed8-a398-4d52-ace8-ffa50c3b6f67.html#tncms-source=home-featured-7-block
+2025-04-27 10:00:09,711 - abq_scraper - INFO - Navigating to article: https://www.abqjournal.com/opinion/article_9c465bf9-ad50-4ffb-8d83-586fb875c41f.html
+2025-04-27 10:00:10,460 - abq_scraper - INFO - Navigating to article: https://www.abqjournal.com/multimedia/collection_9cd7426f-d85b-4a89-832d-2d7195d3eea3.html
+2025-04-27 10:00:11,842 - abq_scraper - WARNING - Skipping article with no title or content: https://www.abqjournal.com/multimedia/collection_9cd7426f-d85b-4a89-832d-2d7195d3eea3.html
+2025-04-27 10:00:11,842 - abq_scraper - INFO - Retrying article https://www.abqjournal.com/multimedia/collection_9cd7426f-d85b-4a89-832d-2d7195d3eea3.html, attempt 2/2
+2025-04-27 10:00:13,475 - urllib3.connectionpool - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None)': /session/25ff6e4369ba72717a1193bb7c76d756

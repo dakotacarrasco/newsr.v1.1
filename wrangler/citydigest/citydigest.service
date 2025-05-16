@@ -1,0 +1,44 @@
+[Unit]
+Description=CityDigest News Service
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/var/www/wrangler
+ExecStart=/var/www/wrangler/venv/bin/python /var/www/wrangler/run_citydigest.py schedule
+Restart=on-failure
+RestartSec=10s
+Environment="PYTHONPATH=/var/www/wrangler"
+
+# Email notification settings
+Environment="SMTP_SERVER=smtp.gmail.com"
+Environment="SMTP_PORT=587"
+Environment="SMTP_USER=dakotacarrasco98@gmail.com"
+Environment="SMTP_PASSWORD=odxr iqhk hwar lfjg"
+Environment="NOTIFICATION_SENDER=dakotacarrasco98@gmail.com"
+Environment="NOTIFICATION_RECIPIENT=dakota@newsr.io"
+
+# Supabase settings
+Environment=SUPABASE_URL=https://ckywgfnaaiapiyrztgdp.supabase.co"
+Environment=SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNreXdnZm5hYWlhcGl5cnp0Z2RwIiwicm9sZSI6
+Environment=SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNreXdnZm5hYWlhcGl5cnp0Z2RwIiwicm9sZSI6ImFub24i
+Environment=SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNreXdnZm5hYWlhcGl5cnp0Z2RwIiwicm9sZSI6ImF
+Environment=SUPABASE_JWT_SECRET=UCVV+q0GPvOQ6kjQ6OagmyyvCp8UD5QtRhr1blR8vL38BJoQhQUsYI5/1h7dIniS/xZQoF+wAj0j3QP2JNfByw==
+Environment=DEFAULT_AUTHOR_ID=00000000-0000-0000-0000-000000000000
+
+# Mixtral API settings
+Environment=MIXTRAL_API_KEY=OTLFsDf7FEz44mcNREgxun2SDUHvGCVB
+Environment=MIXTRAL_API_ENDPOINT=https://api.mistral.ai/v1/chat/completions
+
+# Worker settings
+Environment="WORKER_CONCURRENCY=3"
+Environment="MAX_MEMORY_PERCENT=75"
+Environment="LOG_LEVEL=INFO"
+Environment="RUN_ON_STARTUP=true"
+
+# Output logs to journal
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
