@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Bell, Calendar, CloudRain, Sun, Cloud, CloudLightning, Thermometer, Wind, Droplets, Gauge } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import { CityDigest } from '@/lib/supabase';
+import { supabase } from '@/app/lib/supabase/client';
+import { CityDigest } from '@/app/lib/services/localServices';
 import './DigestViewer.css';
 
 interface WeatherData {
@@ -190,7 +190,15 @@ function DigestViewer({
   }
 
   // Remove the headline in brackets from the content if it exists
-  let cleanedContent = digest.content.replace(/^\*\*\[(.*?)\]\*\*/, '').trim();
+  let cleanedContent = digest.content;
+  let extractedHeadline = '';
+  
+  // Extract headline from content if it exists in the **[Headline]** format
+  const headlineMatch = digest.content.match(/^\*\*\[(.*?)\]\*\*/);
+  if (headlineMatch && headlineMatch[1]) {
+    extractedHeadline = headlineMatch[1];
+    cleanedContent = digest.content.replace(/^\*\*\[(.*?)\]\*\*/, '').trim();
+  }
   
   // Format section headers (all caps words followed by colon)
   cleanedContent = cleanedContent.replace(
@@ -223,7 +231,7 @@ function DigestViewer({
       {/* Header section with title and date/location */}
       <div className="digest-header-container">
         <div className="digest-title-section">
-          <h1>{digest.headline || `${cityName} Daily Digest`}</h1>
+          <h1>{extractedHeadline || digest.headline || `${cityName} Daily Digest`}</h1>
           <div className="flex items-center justify-between">
             <div className="digest-location-date">
               <Calendar className="w-5 h-5 text-gray-500 mr-2" />
@@ -231,46 +239,6 @@ function DigestViewer({
             </div>
           </div>
         </div>
-        
-        {/* Weather display section with loading state */}
-        {isWeatherLoading ? (
-          <div className="digest-weather-loading">
-            <div className="digest-spinner digest-spinner-small"></div>
-            <span>Loading weather information...</span>
-          </div>
-        ) : weatherData && (
-          <div className="digest-weather-card">
-            <div className="digest-weather-left">
-              <div className="digest-weather-icon-container">
-                {getWeatherIcon(weatherData.condition)}
-                <div className="digest-weather-temp">{weatherData.temp}°</div>
-              </div>
-              
-              <div className="digest-weather-info">
-                <div className="digest-weather-condition">{weatherData.condition}</div>
-                <div className="digest-weather-highlow">
-                  <span className="digest-weather-high">H: {weatherData.temp_max}°</span>
-                  <span className="digest-weather-low">L: {weatherData.temp_min}°</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="digest-weather-metrics">
-              <div className="digest-weather-metric">
-                <Wind size={14} className="text-gray-500" />
-                <span>{weatherData.wind_speed}mph</span>
-              </div>
-              <div className="digest-weather-metric">
-                <Droplets size={14} className="text-blue-400" />
-                <span>{weatherData.rain_chance}%</span>
-              </div>
-              <div className="digest-weather-metric">
-                <Gauge size={14} className="text-orange-400" />
-                <span>UV:{weatherData.uv_index}</span>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
       
       <div className="digest-content">

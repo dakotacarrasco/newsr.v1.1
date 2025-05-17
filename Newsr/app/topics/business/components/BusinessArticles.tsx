@@ -15,10 +15,12 @@ export default function BusinessArticles() {
   useEffect(() => {
     async function loadArticles() {
       try {
-        const data = await fetchTopicArticles('business', 4)
-        setArticles(data)
+        // fetchTopicArticles returns { articles, total }
+        const result = await fetchTopicArticles('business', { limit: 4 })
+        setArticles(result.articles)
       } catch (error) {
         console.error('Error loading business articles:', error)
+        setArticles([]) // Ensure we always have an array
       } finally {
         setLoading(false)
       }
@@ -49,7 +51,7 @@ export default function BusinessArticles() {
     )
   }
 
-  if (articles.length === 0) {
+  if (!articles || articles.length === 0) {
     return <div className="py-10 text-center">No business articles found.</div>
   }
 
@@ -76,7 +78,7 @@ export default function BusinessArticles() {
                 {article.summary || article.content.substring(0, 150) + '...'}
               </p>
               <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-100 dark:border-gray-700">
-                <span>{article.source_name || 'Newsr'}</span>
+                <span>{article.source_name || article.source || 'Newsr'}</span>
                 <time dateTime={article.publication_date}>
                   {format(new Date(article.publication_date), 'MMM d, yyyy')}
                 </time>

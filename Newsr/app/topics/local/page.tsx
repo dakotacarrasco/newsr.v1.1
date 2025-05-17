@@ -4,11 +4,12 @@ import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { Search, ChevronRight } from 'lucide-react';
+import { Search, ChevronRight, Droplets, Wind, Sun } from 'lucide-react';
 import DigestViewer from './DigestViewer';
 import SubscribeModal from './subscribe/SubscribeModal';
 import CityButton from './CityButton';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/app/lib/supabase/client';
+import LocalArticles from './components/LocalArticles';
 
 // Define City interface
 interface City {
@@ -242,13 +243,14 @@ export default function LocalNewsPage() {
       setIsLoading(true)
       
       try {
-        console.log(`Fetching news for ${selectedCity.code}`);
+        console.log(`Fetching news for ${selectedCity.name}`);
         
-        // Fetch from Supabase
+        // Basic fetch from Supabase for non-article components that still need it
+        // Main articles are handled by LocalArticles component
         const { data, error } = await supabase
           .from('articles')
           .select('*')
-          .eq('location_id', selectedCity.code)
+          .eq('city', selectedCity.name)
           .order('published_at', { ascending: false })
           .limit(6);
         
@@ -263,8 +265,8 @@ export default function LocalNewsPage() {
             id: article.id,
             title: article.title,
             description: article.description || "",
-            image: article.image_url || '/placeholder.jpg',
-            category: article.category,
+            image: article.image_url || '/images/placeholder.jpg',
+            category: article.category || 'Local',
             author: article.author_id, // Ideally we'd fetch the author name
             date: article.published_at,
             location: selectedCity.name
@@ -272,8 +274,33 @@ export default function LocalNewsPage() {
           
           setArticles(articles);
         } else {
-          console.log('No articles found for this location');
-          setArticles([]);
+          console.log('No articles found for this location, trying topic field');
+          
+          // Try fetching by topic field which may contain the city name
+          const { data: topicData, error: topicError } = await supabase
+            .from('articles')
+            .select('*')
+            .eq('topic', selectedCity.name)
+            .order('published_at', { ascending: false })
+            .limit(6);
+            
+          if (!topicError && topicData && topicData.length > 0) {
+            const articles = topicData.map(article => ({
+              id: article.id,
+              title: article.title,
+              description: article.description || "",
+              image: article.image_url || '/images/placeholder.jpg',
+              category: article.category || 'Local',
+              author: article.author_id,
+              date: article.published_at,
+              location: selectedCity.name
+            }));
+            
+            setArticles(articles);
+          } else {
+            console.log('No articles found for this location');
+            setArticles([]);
+          }
         }
       } catch (err) {
         console.error('Failed to fetch local news:', err);
@@ -408,244 +435,112 @@ export default function LocalNewsPage() {
 
       {/* City Digest Component with integrated weather and subscribe button */}
       <div className="mb-10">
-        <DigestViewer 
-          cityCode={selectedCity.code}
-          cityName={selectedCity.name}
-          cityState={selectedCity.state}
-          weatherData={weatherData}
-          isWeatherLoading={isWeatherLoading}
-          onSubscribe={handleSubscribe}
-        />
-      </div>
-      
-      {/* Articles Grid */}
-      <section className="mb-12">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">Latest News</h2>
-          <Link 
-            href={`/news?location=${selectedCity.code}`} 
-            className="text-blue-600 dark:text-blue-400 hover:underline flex items-center"
+        <h1 className="text-3xl font-bold text-gray-900 mb-1">
+          {selectedCity.name} Local News
+        </h1>
+        <div className="text-gray-600 mb-6 flex items-center justify-between">
+          <p>{formattedDate}</p>
+          <button 
+            onClick={handleSubscribe}
+            className="text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline transition"
           >
-            View All
-            <ChevronRight size={16} className="ml-1" />
-          </Link>
+            Subscribe to {selectedCity.name} digest
+          </button>
         </div>
         
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white dark:bg-gray-800 border border-black overflow-hidden animate-pulse">
-                <div className="h-48 bg-gray-200 dark:bg-gray-700"></div>
-                <div className="p-4">
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 w-3/4 mb-2"></div>
-                  <div className="h-8 bg-gray-200 dark:bg-gray-700 mb-3"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 mb-2"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 w-5/6 mb-4"></div>
-                  <div className="flex justify-between">
-                    <div className="h-3 bg-gray-200 dark:bg-gray-700 w-1/4"></div>
-                    <div className="h-3 bg-gray-200 dark:bg-gray-700 w-1/4"></div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {articles.map(article => (
-              <Link key={article.id} href={`/articles/${article.id}`}>
-                <article className="bg-white dark:bg-gray-800 border border-black overflow-hidden h-full hover:shadow-sm transition-shadow duration-300">
-                  <div className="relative h-48">
-                    <Image
-                      src={article.image}
-                      alt={article.title}
-                      fill
-                      className="object-cover"
-                    />
-                    <div className="absolute top-0 left-0 bg-blue-600 text-white px-2 py-1 text-xs">
-                      {article.category}
-                    </div>
-                  </div>
-                  
-                  <div className="p-4">
-                    <h3 className="text-lg font-bold mb-2 line-clamp-2">{article.title}</h3>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm mb-3 line-clamp-3">
-                      {article.description}
-                    </p>
-                    <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 pt-2 border-t border-gray-100 dark:border-gray-700">
-                      <span>{article.author}</span>
-                      <time dateTime={article.date}>{formatDate(article.date)}</time>
-                    </div>
-                  </div>
-                </article>
-              </Link>
-            ))}
-          </div>
-        )}
-      </section>
-      
-      {/* Local Events Section and Community Resources in 2-column layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        {/* Local Events Section */}
-        <section className="bg-white dark:bg-gray-800 border border-black p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold">Upcoming Events</h2>
-            <Link href="/events" className="text-blue-600 dark:text-blue-400 hover:underline flex items-center text-sm">
-              View All
-              <ChevronRight size={16} className="ml-1" />
-            </Link>
-          </div>
-          
-          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-            <li className="py-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between">
-                <div>
-                  <h3 className="font-medium">{selectedCity.name} Farmers Market</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Every Saturday, 8am - 1pm</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-500">Downtown Plaza</p>
-                </div>
-                <Link 
-                  href="/events/farmers-market"
-                  className="mt-2 sm:mt-0 inline-block bg-blue-50 text-blue-700 text-xs px-3 py-1 border border-blue-100"
-                >
-                  Details
-                </Link>
-              </div>
-            </li>
-            <li className="py-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between">
-                <div>
-                  <h3 className="font-medium">Community Clean-up Day</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Sunday, June 12, 10am - 2pm</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-500">Multiple Locations</p>
-                </div>
-                <Link 
-                  href="/events/community-cleanup"
-                  className="mt-2 sm:mt-0 inline-block bg-blue-50 text-blue-700 text-xs px-3 py-1 border border-blue-100"
-                >
-                  Details
-                </Link>
-              </div>
-            </li>
-            <li className="py-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between">
-                <div>
-                  <h3 className="font-medium">{selectedCity.name} Summer Music Festival</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">June 24-26, All Day</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-500">Central Park</p>
-                </div>
-                <Link 
-                  href="/events/music-festival"
-                  className="mt-2 sm:mt-0 inline-block bg-blue-50 text-blue-700 text-xs px-3 py-1 border border-blue-100"
-                >
-                  Details
-                </Link>
-              </div>
-            </li>
-          </ul>
-        </section>
+        {/* Subscribe Modal */}
+        <SubscribeModal 
+          isOpen={isSubscribeModalOpen} 
+          onClose={() => setIsSubscribeModalOpen(false)}
+          cityName={selectedCity.name}
+          stateName={selectedCity.state}
+          cityCode={selectedCity.code}
+        />
         
-        {/* Community Resources */}
-        <section className="bg-white dark:bg-gray-800 border border-black p-6">
-          <h2 className="text-xl font-bold mb-4">Community Resources</h2>
-          <ul className="space-y-3">
-            <li>
-              <Link href="/resources/emergency" className="flex items-center hover:bg-gray-50 dark:hover:bg-gray-700 p-2">
-                <div className="bg-red-50 text-red-600 p-2 mr-3 border border-red-100">🚨</div>
-                <div>
-                  <div className="font-medium">Emergency Services</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Police, Fire, Medical</div>
-                </div>
-              </Link>
-            </li>
-            <li>
-              <Link href="/resources/government" className="flex items-center hover:bg-gray-50 dark:hover:bg-gray-700 p-2">
-                <div className="bg-blue-50 text-blue-600 p-2 mr-3 border border-blue-100">🏛️</div>
-                <div>
-                  <div className="font-medium">City Government</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Services and Information</div>
-                </div>
-              </Link>
-            </li>
-            <li>
-              <Link href="/resources/education" className="flex items-center hover:bg-gray-50 dark:hover:bg-gray-700 p-2">
-                <div className="bg-yellow-50 text-yellow-600 p-2 mr-3 border border-yellow-100">🏫</div>
-                <div>
-                  <div className="font-medium">Schools & Education</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">District Information</div>
-                </div>
-              </Link>
-            </li>
-            <li>
-              <Link href="/resources/health" className="flex items-center hover:bg-gray-50 dark:hover:bg-gray-700 p-2">
-                <div className="bg-green-50 text-green-600 p-2 mr-3 border border-green-100">🏥</div>
-                <div>
-                  <div className="font-medium">Healthcare</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Hospitals and Clinics</div>
-                </div>
-              </Link>
-            </li>
-          </ul>
-        </section>
+        {/* City Digest/Content Section - Full width without sidebar */}
+        <div>
+          {/* Main digest column */}
+          <div>
+            <DigestViewer cityCode={selectedCity.code} cityName={selectedCity.name} />
+          </div>
+        </div>
       </div>
       
-      {/* Local Job Board - Simplified Version */}
-      <section className="bg-white dark:bg-gray-800 border border-black p-6 mb-8">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">Job Opportunities</h2>
-          <Link href="/jobs" className="text-blue-600 dark:text-blue-400 hover:underline flex items-center">
-            View All Jobs
-            <ChevronRight size={16} className="ml-1" />
-          </Link>
-        </div>
+      {/* Latest News Section */}
+      <div className="mb-10">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-2 border-b">
+          Latest from {selectedCity.name}
+        </h2>
+        <LocalArticles city={selectedCity.name} limit={6} />
+      </div>
+      
+      {/* Weather Section - Moved to bottom */}
+      <div className="mb-10">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6 pb-2 border-b">
+          Weather in {selectedCity.name}
+        </h2>
         
-        <div className="space-y-4">
-          <div className="border border-gray-300 dark:border-gray-700 p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-bold">Software Developer</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">TechCorp Inc. • {selectedCity.name}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-500 mb-2">Full-time • Remote • $120K-$150K</p>
-                <p className="text-sm line-clamp-2">Join our team to develop cutting-edge web applications using modern frameworks and tools.</p>
+        <div className="bg-white rounded-xl border overflow-hidden shadow-md">
+          <div className="p-6">
+            {isWeatherLoading ? (
+              <div className="flex flex-col items-center justify-center h-32">
+                <div className="animate-pulse w-16 h-16 rounded-full bg-gray-200 mb-2"></div>
+                <div className="animate-pulse w-24 h-4 bg-gray-200"></div>
               </div>
-              <span className="text-xs bg-green-50 text-green-700 px-2 py-1 border border-green-100">
-                New
-              </span>
-            </div>
-          </div>
-          
-          <div className="border border-gray-300 dark:border-gray-700 p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-bold">Marketing Coordinator</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Brand Solutions • {selectedCity.name}</p>
-                <p className="text-sm text-gray-500 dark:text-gray-500 mb-2">Full-time • In-office • $65K-$80K</p>
-                <p className="text-sm line-clamp-2">Looking for a creative marketing professional to join our growing team.</p>
+            ) : weatherData ? (
+              <div className="flex flex-col md:flex-row justify-between items-center">
+                <div className="flex items-center mb-4 md:mb-0">
+                  <div className="text-7xl font-bold text-gray-900 mr-6">{weatherData.temp}°</div>
+                  <div>
+                    <div className="text-xl text-gray-800 font-medium mb-1">{weatherData.condition}</div>
+                    <div className="text-gray-600">
+                      <span className="text-blue-600">Low: {weatherData.temp_min}°</span>
+                      <span className="mx-2">|</span>
+                      <span className="text-red-600">High: {weatherData.temp_max}°</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-x-10 gap-y-2 text-sm text-gray-700">
+                  <div className="flex items-center">
+                    <Droplets className="w-5 h-5 text-blue-500 mr-2" /> 
+                    <span>Rain: {weatherData.rain_chance}%</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Wind className="w-5 h-5 text-blue-500 mr-2" />
+                    <span>Wind: {weatherData.wind_speed} mph</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Sun className="w-5 h-5 text-orange-500 mr-2" />
+                    <span>UV: {weatherData.uv_index}</span>
+                  </div>
+                </div>
               </div>
-              <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 border border-blue-100">
-                3 days ago
-              </span>
-            </div>
-          </div>
-          
-          <div className="border border-gray-300 dark:border-gray-700 p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-bold">Restaurant Server</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Bistro {selectedCity.name} • Downtown</p>
-                <p className="text-sm text-gray-500 dark:text-gray-500 mb-2">Part-time • In-person • $20-$30/hr (incl. tips)</p>
-                <p className="text-sm line-clamp-2">Seeking friendly, energetic servers for our busy downtown restaurant.</p>
+            ) : (
+              <div className="text-center text-gray-500 py-6">
+                Weather data unavailable
               </div>
-              <span className="text-xs bg-blue-50 text-blue-700 px-2 py-1 border border-blue-100">
-                1 week ago
-              </span>
-            </div>
+            )}
           </div>
         </div>
-      </section>
-
+      </div>
+      
+      {/* Bottom Call to Action */}
+      <div className="text-center py-8">
+        <p className="text-lg text-gray-700 mb-4">
+          Want to stay updated with {selectedCity.name} news?
+        </p>
+        <button
+          onClick={handleSubscribe}
+          className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-lg shadow hover:shadow-md transition"
+        >
+          Subscribe to Daily Updates
+        </button>
+      </div>
+      
       {/* Subscribe Modal */}
       <SubscribeModal 
-        isOpen={isSubscribeModalOpen}
+        isOpen={isSubscribeModalOpen} 
         onClose={() => setIsSubscribeModalOpen(false)}
         cityName={selectedCity.name}
         stateName={selectedCity.state}
