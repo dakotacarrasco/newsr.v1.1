@@ -4,7 +4,17 @@ import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Bell, Calendar, CloudRain, Sun, Cloud, CloudLightning, Thermometer, Wind, Droplets, Gauge } from 'lucide-react';
 import { supabase } from '@/app/lib/supabase/client';
-import { CityDigest } from '@/app/lib/services/localServices';
+// Local CityDigest interface to match our database structure
+interface CityDigest {
+  id: string;
+  city_code: string;
+  city_name: string;
+  region: string;
+  date: string;
+  headline?: string;
+  content: string;
+  active: boolean;
+}
 import './DigestViewer.css';
 
 interface WeatherData {

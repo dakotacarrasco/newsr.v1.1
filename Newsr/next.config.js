@@ -1,17 +1,50 @@
+const withPWA = require('next-pwa')({
+  dest: 'public',
+  disable: process.env.NODE_ENV === 'development',
+  register: true,
+  skipWaiting: true,
+})
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  experimental: {
+    optimizeCss: true,
+    scrollRestoration: true,
+  },
+  transpilePackages: ['@vercel/speed-insights'],
+  generateBuildId: () => 'build',
+  // Bypass route validation for problematic paths
+  onDemandEntries: {
+    maxInactiveAge: 25 * 1000,
+    pagesBufferLength: 2,
+  },
   typescript: {
-    // Disable type checking on build to allow deployment despite context errors
-    ignoreBuildErrors: true,
+    // Re-enable in production for better type safety
+    ignoreBuildErrors: process.env.NODE_ENV === 'development',
   },
   eslint: {
-    // Disable eslint checks on build
-    ignoreDuringBuilds: true,
+    // Re-enable in production for better code quality
+    ignoreDuringBuilds: process.env.NODE_ENV === 'development',
   },
   images: {
-    domains: ['images.unsplash.com', 'via.placeholder.com', 'source.unsplash.com', 'cdn.pixabay.com'],
     remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'source.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.pixabay.com',
+      },
       {
         protocol: 'https',
         hostname: '**',
@@ -47,4 +80,4 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig 
+module.exports = withPWA(nextConfig) 

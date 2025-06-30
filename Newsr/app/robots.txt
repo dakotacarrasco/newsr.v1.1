@@ -1,0 +1,60 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://newsr.vercel.app/sitemap.xml
+
+# Crawl-delay for bots
+Crawl-delay: 1
+
+# Allow all major search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+# Disallow admin and private areas (if any)
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /private/
+
+# Allow images and assets
+Allow: /images/
+Allow: /icons/
+Allow: /og-*.jpg
+Allow: /logo.png
+
+# Allow search engines to crawl important API endpoints for SEO
+Allow: /api/articles/
+Allow: /api/categories/
+
+# Disallow temporary and cache files
+Disallow: *.tmp
+Disallow: *.cache
+Disallow: *.log
+
+# Crawl delay for respectful crawling
+Crawl-delay: 1
+
+# Specific rules for different bots
+User-agent: Slurp
+Allow: /
+Crawl-delay: 2
+
+# Block aggressive crawlers
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: / 

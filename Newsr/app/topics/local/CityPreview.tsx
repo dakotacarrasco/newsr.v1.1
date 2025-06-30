@@ -1,6 +1,16 @@
 import React from 'react';
-import { CityDigest } from '@/lib/supabase';
 import { Calendar } from 'lucide-react';
+
+interface CityDigest {
+  id: string;
+  city_code: string;
+  city_name: string;
+  region: string;
+  date: string;
+  headline?: string;
+  content: string;
+  active: boolean;
+}
 
 interface CityPreviewProps {
   digest: CityDigest | null;

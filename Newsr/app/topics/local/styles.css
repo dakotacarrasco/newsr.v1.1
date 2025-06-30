@@ -122,4 +122,139 @@
 .weather-temp-low {
   color: #3182ce;
   font-weight: 500;
-} 
+}
+
+/* Professional typography improvements */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  letter-spacing: -0.02em;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Enhanced grid spacing for better readability */
+.local-news-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (min-width: 768px) {
+  .local-news-grid {
+    gap: 2.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .local-news-grid {
+    gap: 3rem;
+  }
+}
+
+/* Simplified hover effects for better performance */
+.news-tile {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.news-tile:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Professional line-clamp utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+}
+
+.line-clamp-4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+}
+
+/* Clean loading states */
+.loading-skeleton {
+  background: linear-gradient(90deg, 
+    rgba(229, 231, 235, 0.8) 0%, 
+    rgba(229, 231, 235, 0.4) 50%, 
+    rgba(229, 231, 235, 0.8) 100%);
+  background-size: 200% 100%;
+  animation: loading-shimmer 2s infinite;
+}
+
+@keyframes loading-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .news-tile {
+    transition: none;
+  }
+  
+  .news-tile:hover {
+    transform: none;
+  }
+  
+  .loading-skeleton {
+    animation: none;
+  }
+}
+
+/* Focus states for better accessibility */
+.news-tile:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Text selection styling */
+.news-tile h2::selection {
+  background: rgba(59, 130, 246, 0.2);
+  color: inherit;
+}
+
+.news-tile h2::-moz-selection {
+  background: rgba(59, 130, 246, 0.2);
+  color: inherit;
+}
+
+/* Scrollbar styling for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.5);
+}

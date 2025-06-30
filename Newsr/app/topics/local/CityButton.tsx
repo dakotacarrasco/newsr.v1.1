@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
-import { supabase } from '@/lib/supabase';
-import { CityDigest } from '@/lib/supabase';
+import { supabase } from '@/app/lib/supabase/client';
+
+interface CityDigest {
+  id: string;
+  city_code: string;
+  city_name: string;
+  region: string;
+  date: string;
+  headline: string;
+  content: string;
+  active: boolean;
+}
 import CityPreview from './CityPreview';
 import './CityPreview.css';
 

@@ -2,8 +2,14 @@ import { Metadata, Viewport } from 'next'
 import ClientProviders from './ClientProviders'
 import '@/app/styles/globals.css'
 import Header from '@/app/components/layout/Header'
+import Footer from '@/app/components/layout/Footer'
 import { ThemeProvider } from '@/app/components/ThemeProvider'
 import { Analytics } from "@vercel/analytics/react"
+import { ErrorBoundary } from '@/app/components/ErrorBoundary'
+import { ToastProvider } from '@/app/components/Toast'
+import { AccessibilityProvider } from '@/app/components/AccessibilityProvider'
+import { PerformanceMonitor } from '@/app/components/PerformanceMonitor'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 // Viewport configuration - separated from metadata
 export const viewport: Viewport = {
@@ -55,15 +61,24 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className="min-h-full flex flex-col">
-        <ThemeProvider>
-          <ClientProviders>
-            <Header />
-            <main className="pt-[100px] flex-grow">
-              {children}
-            </main>
-            <Analytics />
-          </ClientProviders>
-        </ThemeProvider>
+        <ErrorBoundary>
+          <AccessibilityProvider>
+            <ToastProvider>
+              <ThemeProvider>
+                <ClientProviders>
+                  <PerformanceMonitor />
+                  <Header />
+                  <main id="main-content" className="pt-[100px] flex-grow" tabIndex={-1}>
+                    {children}
+                  </main>
+                  <Footer />
+                  <Analytics />
+                </ClientProviders>
+              </ThemeProvider>
+            </ToastProvider>
+          </AccessibilityProvider>
+        </ErrorBoundary>
+        <SpeedInsights />
       </body>
     </html>
   )

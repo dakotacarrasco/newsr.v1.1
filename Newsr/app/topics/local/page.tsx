@@ -10,6 +10,7 @@ import SubscribeModal from './subscribe/SubscribeModal';
 import CityButton from './CityButton';
 import { supabase } from '@/app/lib/supabase/client';
 import LocalArticles from './components/LocalArticles';
+import CityDigestTiles from './components/CityDigestTiles';
 
 // Define City interface
 interface City {
@@ -69,6 +70,10 @@ export default function LocalNewsPage() {
   const [citySearchQuery, setCitySearchQuery] = useState('');
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   
+  // Check if showing individual city view or tiles view
+  const showIndividualCity = searchParams.get('city') !== null;
+  const [showTileView, setShowTileView] = useState(!showIndividualCity);
+  
   // Format the date for display
   const formattedDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -79,7 +84,7 @@ export default function LocalNewsPage() {
 
   // Initialize with the location from URL if present
   useEffect(() => {
-    const locationParam = searchParams.get('location')
+    const locationParam = searchParams.get('location') || searchParams.get('city');
     if (locationParam) {
       const matchingCity = fallbackCities.find(city => 
         city.name.toLowerCase() === locationParam.toLowerCase() || 
@@ -88,7 +93,10 @@ export default function LocalNewsPage() {
       
       if (matchingCity) {
         setSelectedCity(matchingCity);
+        setShowTileView(false); // Show individual city view
       }
+    } else {
+      setShowTileView(true); // Show tiles view when no specific city
     }
   }, [searchParams])
 
@@ -328,6 +336,18 @@ export default function LocalNewsPage() {
     setIsSubscribeModalOpen(true);
   };
 
+  // Handle city selection from tiles
+  const handleCitySelect = (cityCode: string, cityName: string) => {
+    // Redirect to dedicated city page instead of using query parameters
+    window.location.href = `/topics/local/${cityCode.toLowerCase()}`;
+  };
+
+  // Handle back to tiles view
+  const handleBackToTiles = () => {
+    setShowTileView(true);
+    window.history.pushState({}, '', `/topics/local`);
+  };
+
   // Filter cities based on search query
   const filteredCities = cities.filter(city => 
     city.name.toLowerCase().includes(citySearchQuery.toLowerCase()) || 
@@ -353,10 +373,78 @@ export default function LocalNewsPage() {
   }, [groupedCities]);
 
   return (
-    <main className="max-w-7xl mx-auto px-4 py-8">
-      {/* City Selection Header */}
-      <div className="mb-8">
-        <h2 className="text-xl font-medium text-gray-700 mb-4">Select a Location</h2>
+    <div className="min-h-screen bg-white">
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        {showTileView ? (
+          // Tile-based view for SEO
+          <>
+            <div className="mb-12 text-center">
+              <h1 className="text-4xl md:text-5xl font-bold text-black mb-3">
+                {new Date().toLocaleDateString('en-US', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </h1>
+              <p className="text-lg text-gray-700 font-medium">
+                Breaking stories from cities across America
+              </p>
+            </div>
+
+            <CityDigestTiles 
+              className="mb-16"
+            />
+
+            {/* City Directory for SEO */}
+            <section className="mb-16">
+              <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
+                Local News by City
+              </h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {cities.sort((a, b) => a.name.localeCompare(b.name)).map((city) => (
+                  <Link
+                    key={city.code}
+                    href={`/topics/local/${city.code.toLowerCase()}`}
+                    className="group block p-4 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-semibold text-gray-900 group-hover:text-blue-600">
+                          {city.name}
+                        </h3>
+                        <p className="text-sm text-gray-500">{city.state}</p>
+                      </div>
+                      {city.active && (
+                        <div className="w-2 h-2 bg-green-500 rounded-full" title="Active coverage" />
+                      )}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+              <div className="text-center mt-8">
+                <p className="text-gray-600">
+                  Don't see your city? <Link href="/contact" className="text-blue-600 hover:underline">Contact us</Link> to request coverage.
+                </p>
+              </div>
+            </section>
+          </>
+        ) : (
+        // Individual city view
+        <>
+          {/* Back to tiles navigation */}
+          <div className="mb-6">
+            <button 
+              onClick={handleBackToTiles}
+              className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium"
+            >
+              ← Back to all cities
+            </button>
+          </div>
+
+          {/* City Selection Header */}
+          <div className="mb-8">
+            <h2 className="text-xl font-medium text-gray-700 mb-4">Select a Location</h2>
         
         <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl p-4 border border-gray-100 shadow-sm">
           {/* State section */}
@@ -546,6 +634,9 @@ export default function LocalNewsPage() {
         stateName={selectedCity.state}
         cityCode={selectedCity.code}
       />
-    </main>
+          </>
+        )}
+      </main>
+    </div>
   )
 }

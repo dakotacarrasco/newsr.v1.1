@@ -15,10 +15,11 @@ export default function CulturePage() {
   useEffect(() => {
     async function loadArticles() {
       try {
-        const data = await fetchTopicArticles('culture', 6)
-        setArticles(data)
+        const result = await fetchTopicArticles('culture', { limit: 6 })
+        setArticles(result.articles)
       } catch (error) {
         console.error('Error loading culture articles:', error)
+        setArticles([])
       } finally {
         setLoading(false)
       }
@@ -31,13 +32,7 @@ export default function CulturePage() {
     <main className="max-w-7xl mx-auto px-4 py-8">
       {/* Hero Section */}
       <section className="mb-8">
-        <div className="relative h-64 md:h-80 rounded-xl overflow-hidden">
-          <Image 
-            src="/culture-banner.jpg" 
-            alt="Culture Banner"
-            fill
-            className="object-cover"
-          />
+        <div className="relative h-64 md:h-80 rounded-xl overflow-hidden bg-gradient-to-r from-purple-800 to-blue-700">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-900/70 to-transparent"></div>
           <div className="absolute bottom-0 left-0 p-6 text-white">
             <h1 className="text-3xl md:text-4xl font-bold mb-2">Culture</h1>
@@ -114,12 +109,21 @@ export default function CulturePage() {
                 <Link key={article.id} href={articleUrl}>
                   <article className="bg-white dark:bg-gray-800 border overflow-hidden h-full hover:shadow-sm transition-shadow duration-300">
                     <div className="relative h-48">
-                      <Image
-                        src={article.image_url || '/placeholder.jpg'}
-                        alt={article.title}
-                        fill
-                        className="object-cover"
-                      />
+                      <div className="w-full h-full bg-gray-200 dark:bg-gray-700">
+                        {article.image_url && (
+                          <Image
+                            src={article.image_url}
+                            alt={article.title}
+                            fill
+                            className="object-cover"
+                            onError={(e) => {
+                              // Hide the image on error
+                              const target = e.target as HTMLImageElement;
+                              if (target) target.style.display = 'none';
+                            }}
+                          />
+                        )}
+                      </div>
                       <div className="absolute top-0 left-0 bg-purple-600 text-white px-2 py-1 text-xs">
                         {article.topic}
                       </div>
